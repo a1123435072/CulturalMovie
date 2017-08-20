@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>新闻资讯列表</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/style.css" />
+		<style type="text/css">
+		</style>
+		<link id="nightLink" rel="stylesheet" href="">
+	</head>
+	<body>
+		<div class="wrapBox">
+			<div class="repertoireList reviewList">
+				<ul id="newsBox"></ul>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery.min.js"></script>
+	<script type="text/javascript" src="../script/funcTools.js"></script>
+	<script type="text/javascript" src="../script/sessions.js"></script>
+	<script type="text/javascript">
+		var page = 1;
+		apiready = function() {
+			setSystem();
+			getNews();
+			//头部下拉刷新
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				getNews();
+				api.refreshHeaderLoadDone();
+			});
+			//底部下拉加载更多
+			api.addEventListener({
+				name : 'scrolltobottom'
+			}, function(ret, err) {
+				page++;
+				getNews();
+				api.parseTapmode();
+			});
+		}
+		//根据条件查询新闻列表
+		function getNews() {
+			var userEntity = sessionAgent.getLoginInfo();
+			var userId = userEntity.userId;
+			var catCode = utilsFuncs.trimStr(api.pageParam.hylx);
+			var getListUrl = ajaxAgent.serverAction + '/app/index/infoList';
+			getListUrl += '?currentPage=' + page + '&pageSize=10&rdnum=' + Math.random();
+			api.showProgress();
+			api.ajax({
+				url : getListUrl,
+				method : 'get',
+				timeout : 50,
+				dataType : 'json',
+				returnAll : false,
+				data : {
+					values : {
+						userId : userId,
+						catCode : catCode
+					}
+				}
+			}, function(ret, err) {
+				if (ret.hot_list) {
+					if ((0 == ret.hot_list.length ) && (1 == page)) {
+						$("#newsBox").html('<p style="text-align: center;">暂无数据！</p>');
+						return false;
+					} else if ((0 == ret.hot_list.length ) && (1 != page)) {
+						api.toast({
+							msg : '没有更多地数据了',
+							duration : 1000,
+							location : 'middle'
+						});
+						return false;
+					} else {
+						var newsHtml = '';
+						//用户设置模式(智能无图/正常模式)
+						var IsImgType = setSystem();
+						$.each(ret.hot_list, function(i, val) {
+							newsHtml += '<li onclick="showNew(' + val.id + ',' + val.showReviewNum + ',' + val.isCollect + ')">';
+							//智能无图模式
+							if ('true' == IsImgType) {
+								newsHtml += '';
+								//正常模式
+							} else {
+								newsHtml += '<img class="reviewListPic" src="' + val.showPic + '" />';
+							}
+							newsHtml += '<div class="listWrap"><div class="repertoireTitle"><span class="repertoireName cloudName"><em class="Cloud">[' + val.newsTypeName + ']</em>' + val.showTitle + '</span></div><div class="repertoireWidth100 repertoireTime"><img src="../image/clock.png"><span>' + val.showDate + '</span><div class="reviewNumber"><img src="../image/reviewIcon.png">' + val.showReviewNum + '</div></div></div></li>';
+						});
+						if (page == 1) {
+							$("#newsBox").html(newsHtml);
+						} else {
+							$("#newsBox").append(newsHtml);
+						}
+					}
+				}
+			});
+			api.parseTapmode();
+			api.hideProgress();
+		}
+
+		//用户设置夜间模式和智能无图模式
+		function setSystem() {
+			var systemSetting = sessionAgent.getStorage(sessionAgent.keyMap.systemSetKey);
+			if (systemSetting && systemSetting.isNightStyle == 'true') {
+				utilsFuncs.setNightTime('nightLink', 1);
+			} else {
+				utilsFuncs.setNightTime('nightLink', 0);
+			}
+			if (systemSetting && systemSetting.checkImgType == 'true') {
+				return 'true';
+			} else {
+				return 'false';
+			}
+		}
+	</script>
+</html>

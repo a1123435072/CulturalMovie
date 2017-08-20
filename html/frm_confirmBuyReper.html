@@ -1,0 +1,492 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>确认订单</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/style.css" />
+		<style type="text/css">
+			.darktitle {
+				width: 100%;
+				height: 45px;
+				line-height: 45px;
+				font-size: 18px;
+				background: #efefef;
+				color: #666;
+				text-indent: 10px;
+				margin-bottom: 15px;
+				border-top: 1px solid #ddd;
+				border-bottom: 1px solid #ddd;
+			}
+			.payTime {
+				text-align: center;
+			}
+			.payTime span {
+				color: red;
+			}
+			.borderBox {
+				height: 40px;
+				background: #fff;
+				border-top: solid 1px #ddd;
+				border-bottom: solid 1px #ddd;
+				margin-bottom: 5px;
+			}
+			.chk_1 {
+				display: none;
+			}
+			.chk_1 + label {
+				height: 40px;
+				line-height: 40px;
+				width: 100%;
+				display: inline-block;
+				position: relative;
+			}
+			.chk_1 + label img {
+				width: 25px;
+				height: 25px;
+				margin: 8px 10px 0 15px;
+				float: left
+			}
+			.chk_1 + label span {
+				font-size: 14px;
+				float: left;
+			}
+			.chk_1 + label:active {
+			}
+			.chk_1:checked + label {
+				background-color: #ECF2F7;
+				color: #243441;
+			}
+			.chk_1:checked + label:after {
+				content: '\2714';
+				color: #FC9039;
+				width: 15px;
+				height: 15px;
+				text-align: left;
+				font-size: 16px;
+				padding: 1px 3px 0 0;
+				line-height: 15px;
+				border: solid 2px #FC9039;
+				position: absolute;
+				top: 10px;
+				right: 15px;
+			}
+			.box_bottom {
+				display: block;
+				margin: 0 auto;
+				width: 100%;
+				height: 55px;
+				background-color: #e23839;
+				color: #fff;
+				font-size: 1.4em;
+				text-align: center;
+				line-height: 55px;
+			}
+			.OrderInfo, .OrderInfo01 {
+				padding: 0 20px;
+			}
+			.OrderInfo h1 {
+				font-size: 18px;
+				height: 50px;
+				line-height: 25px;
+				overflow: hidden;
+				/*padding-bottom: 10px;*/
+			}
+			.OrderInfo p {
+				font-size: 16px;
+				color: #666;
+				height: 30px;
+				line-height: 30px;
+			}
+			.OrderInfo01 {
+			}
+			.OrderInfo01 p {
+				height: 35px;
+				line-height: 35px;
+				margin-bottom: 10px;
+				color: #666;
+				border-bottom: 1px solid #ddd;
+			}
+			.qupiao01 {
+				margin-right: 20px;
+			}
+			.qupiao01 label {
+				cursor: pointer;
+			}
+			p.ShippingAddress {
+				border-bottom: none;
+				display: none;
+			}
+			p.ShippingAddress .address, p .address {
+				width: 70%;
+				border: 1px solid #ddd;
+				height: 28px;
+				line-height: 28px;
+				padding: 0 3px;
+			}
+			p.ShippingAddress .code {
+				width: 30%;
+			}
+			.OrderInfo01 p span {
+				float: right;
+			}
+			.illustrate {
+				color: #999;
+				height: 30px;
+				line-height: 30px;
+				padding: 20px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="OrderBox"></div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery.min.js"></script>
+	<script type="text/javascript" src="../script/funcTools.js" ></script>
+	<script type="text/javascript" src="../script/sessions.js" ></script>
+	<script type="text/javascript">
+		apiready = function() {
+			setOrderInfo();
+		}
+		//确认订单并支付(订单详情写入数据表)
+		function NowPay() {
+			//确认支付时间超时
+			var showTime = $('#showTime').html();
+			if (showTime < 1) {
+				api.alert({
+					msg : '支付时间超时,请重新选'
+				});
+				return false;
+			}
+			//判断当前网络是否符合支付
+			api.addEventListener({
+				name : 'offline'
+			}, function(ret, err) {
+				api.toast({
+					msg : '您当前处于离线状态不能购买！',
+					duration : 1000,
+					location : 'middle'
+				});
+				return false;
+			});
+			//ShippingType邮寄方式，默认为1;为2是邮寄须填写邮编和地址
+			var ShippingType = $('input:radio[name="Shipping"]:checked').val();
+			//选择邮寄方式必须填写地址
+			if (ShippingType == 2) {
+				var address = $("#address").val();
+				var code = $("#code").val();
+				var re = /^[1-9][0-9]{5}$/;
+				if (address == '' || code == '' || !re.test(code)) {
+					api.alert({
+						msg : '请填写正确的邮编和地址'
+					});
+					return false;
+				}
+			} else {
+				var address = '';
+			}
+			var userEntity = sessionAgent.getLoginInfo();
+			var userId = userEntity.userId;
+			var seatArray = api.pageParam.seatArray;
+			var getOrderUrl = ajaxAgent.serverAction + '/app/order/createOrder?rdnum=' + Math.random();
+			//支付方式
+			var payType = $('input:radio[name="pay"]:checked').val();
+			var Rebate = api.pageParam.Rebate;
+			var Mount = $("#orderMoney").val();
+			//构造订单参数
+			var jsonOrder = {
+				productType : 3, //购票订单类型
+				userId : userId, //用户Id
+				productId : api.pageParam.Id, //剧目Id
+				num : seatArray.Num, //购票数量
+				seat : seatArray.SeatStr, //座位信息(随机选座时为空)
+				price : Mount, //购票总价格
+				timeId : api.pageParam.SeatTimeId, //场次Id
+				seatName : api.pageParam.seatName, //座位区域(A/B/C/D/E/F)
+				address : address, //邮寄地址
+				zip : code, //邮寄编码
+				payWay : payType, //支付方式
+				couponCode : $("#couponCode").val()//优惠码
+			};
+			api.showProgress();
+			api.ajax({
+				url : getOrderUrl,
+				method : 'post',
+				timeout : 30,
+				dataType : 'json',
+				returnAll : false,
+				data : {
+					values : {
+						jsonOrder : jsonOrder
+					}
+				}
+			}, function(ret, err) {
+				//订单生成成功
+				if (1 == ret.result) {
+					var orderInfo = ret.order;
+					//支付宝支付
+					if (1 == payType) {
+						payByAliPay(orderInfo);
+						//微信支付
+					} else if (5 == payType) {
+						payByWeixin(orderInfo);
+						//余额支付
+					} else {
+						api.alert({
+							msg : '余额支付成功'
+						});
+						api.closeWin();
+					}
+					//订单生成失败
+				} else if (0 == ret.result) {
+					api.toast({
+						msg : ret.msg,
+						duration : 1000,
+						location : 'middle'
+					});
+					return false;
+					//其他原因造成订单失败
+				} else {
+					api.toast({
+						msg : '参数错误',
+						duration : 1000,
+						location : 'middle'
+					});
+					return false;
+				}
+			});
+			api.parseTapmode();
+			api.hideProgress();
+		}
+
+		//微信支付
+		function payByWeixin(orderInfo) {
+			var notifyURL = "http://www.wenhuawh.com/business/alipay/toNotify_url";
+			var wxPay = api.require('wxPay');
+			//微信配置
+			wxPay.config({
+				apiKey : 'wx295b94ede1397a7c',
+				mchId : '1303257001',
+				partnerKey : '1a2b3c4d5e6f7g8h9i10jwenhuawuhan',
+				notifyUrl : notifyURL
+			}, function(ret, err) {
+				//商户配置正确
+				if (ret.status) {
+					//微信支付
+					wxPay.pay({
+						description : '购买剧票',
+						detail : '用户购买剧票',
+						totalFee : (orderInfo.price) * 100,
+						tradeNo : orderInfo.orderNo
+					}, function(ret2, err2) {
+						//支付成功
+						if (ret2.status) {
+							api.alert({
+								msg : '支付成功'
+							});
+							api.closeWin();
+							//支付失败
+						} else if ('-2' == err2.code) {
+							api.alert({
+								msg : '取消支付'
+							});
+							api.closeWin();
+							openUserOrder();
+						} else {
+							api.alert({
+								msg : '其他原因支付失败'
+							});
+							api.closeWin();
+							openUserOrder();
+						}
+					});
+					//商户配置错误
+				} else {
+					api.alert({
+						msg : '商户参数错误'
+					});
+					api.closeWin();
+					openUserOrder();
+				}
+			});
+		}
+
+		//支付宝支付
+		function payByAliPay(orderInfo) {
+			var aliPay = api.require('aliPay');
+			aliPay.pay({
+				subject : '购买剧票' + api.pageParam.Name,
+				body : '用户购买剧票' + api.pageParam.Name,
+				amount : orderInfo.price,
+				tradeNO : orderInfo.orderNo
+			}, function(ret, err) {
+				//支付成功关闭当前窗口
+				if ('9000' == ret.code) {
+					api.alert({
+						msg : '支付成功'
+					});
+					api.closeWin();
+					//支付失败跳到个人中心待付款
+				} else if ('6001' == ret.code) {
+					api.alert({
+						msg : '取消支付'
+					});
+					api.closeWin();
+					openUserOrder();
+				} else {
+					api.alert({
+						msg : '商户参数错误'
+					});
+					api.closeWin();
+					openUserOrder();
+				}
+			});
+		}
+
+		//跳转个人中心待付款订单
+		function openUserOrder() {
+			api.openWin({
+				name : 'commonUserOrderState2',
+				url : 'win_commonUserTitle.html',
+				pageParam : {
+					bannerName : 'orderState2',
+					bannerTitle : '待付款订单',
+					bannerTag : 'orderState',
+					bannerUrl : 'frm_userOrderList.html',
+					orderState : 2
+				},
+				bounces : false,
+				vScrollBarEnabled : false,
+				hScrollBarEnabled : false,
+				reload : true
+			});
+		}
+
+		//构造订单信息
+		function setOrderInfo() {
+			var userEntity = sessionAgent.getLoginInfo();
+			var seatArray = api.pageParam.seatArray;
+			var Rebate = api.pageParam.Rebate;
+			//没有打折
+			if (Rebate == 1) {
+				var RebateInfo = '暂无';
+				var Mount = seatArray.Price;
+				//有打折信息
+			} else {
+				var RebateInfo = (Rebate * 10) + '折';
+				var Mount = ((seatArray.Price) * Rebate);
+			}
+			Orderhtml = '<div class="darktitle payTime">支付剩余时间：<span id="showTime">30:00</span></div>';
+			Orderhtml += '<div class="OrderInfo">';
+			Orderhtml += '<h1>' + api.pageParam.Name + '</h1>';
+			Orderhtml += '<p>' + api.pageParam.Address + '</p>';
+			Orderhtml += '<p>' + api.pageParam.SeatTime + '</p>';
+			Orderhtml += '<p>' + seatArray.Num + '张</p>';
+			Orderhtml += '<div class="seation">' + seatArray.SeatStr + '</div>';
+			Orderhtml += '</div>';
+			Orderhtml += '<div class="darktitle">派送信息</div>';
+			Orderhtml += '<div class="OrderInfo01">';
+			Orderhtml += '<p>购票人手机号：<span>' + userEntity.cellPhone + '</span></p>';
+			Orderhtml += '<p>取票方式：<span class="qupiao01" onClick="setShipping(2)"><input type="radio" id="Shipping02" name="Shipping" value="2" /><label for="Shipping02">邮寄</label></span><span class="qupiao01" onClick="setShipping(1)"><input type="radio" id="Shipping01" name="Shipping" value="1" checked/><label for="Shipping01">自取</label></span></p>';
+			Orderhtml += '<p class="ShippingAddress">邮编：<input type="text" class="address code" id="code" ></p>'
+			Orderhtml += '<p class="ShippingAddress">地址：<input type="text" class="address" id="address"></p>';
+			Orderhtml += '</div>';
+			Orderhtml += '<div class="darktitle">结算信息</div>';
+			Orderhtml += '<div class="OrderInfo01">';
+			Orderhtml += '<p>总价：<span>' + seatArray.Price + '元</span></p>';
+			Orderhtml += '<p>打折：<span>' + RebateInfo + '</span></p>';
+			Orderhtml += '<p>优惠码：<input type="text" class="address" id="couponCode" onBlur="getRebateMoney()"></p>';
+			Orderhtml += '<p style=" border-bottom:0;">需支付：<span id="couponMoney">' + Mount + '元</span><input type="hidden" id="orderMoney" value="' + Mount + '"></p>'
+			Orderhtml += '</div>';
+			Orderhtml += '<div class="darktitle">支付方式</div>';
+			Orderhtml += '<div class="PayType"><div class="borderBox"><div class="paddingBox"><input type="radio" id="checkbox_a1" class="chk_1" name="pay" value="1"  checked/><label for="checkbox_a1"><img src="../image/Alipay.png" /><span>支付宝支付</span></label></div></div><div class="borderBox"><input type="radio" id="checkbox_a2" class="chk_1" name="pay" value="5"/><label for="checkbox_a2"><img src="../image/weixin.png" /><span>微信支付</span></label></div><div class="borderBox"><input type="radio" id="checkbox_a3" class="chk_1" name="pay" value="3"/><label for="checkbox_a3"><img src="../image/balance.png" /><span>余额支付</span></label></div></div>';
+			Orderhtml += '<div class="illustrate">支付后立即出票，不支持退换</div>';
+			Orderhtml += '<div class="box_bottom" onclick="NowPay()"><a class="button" tapmode>确认订单并支付</a></div>';
+			$(".OrderBox").html(Orderhtml);
+			showTime();
+		}
+
+		//获取优惠券优惠金额
+		function getRebateMoney() {
+			var getRebateMoney = ajaxAgent.serverAction + '/app/index/getCouponCode';
+			api.ajax({
+				url : getRebateMoney,
+				method : 'get',
+				timeout : 50,
+				dataType : 'json',
+				returnAll : false,
+				data : {
+					values : {
+						couponCode : $("#couponCode").val()
+					}
+				}
+			}, function(ret, err) {
+				//优惠码成功
+				if (1 == ret.result) {
+					var seatArray = api.pageParam.seatArray;
+					var Rebate = api.pageParam.Rebate;
+					if (Rebate == 1) {
+						var RebateInfo = '暂无';
+						var Mount = (seatArray.Price) - (ret.showDiscount);
+					} else {
+						var RebateInfo = parseInt(Rebate * 10) + '折';
+						var Mount = ((seatArray.Price) * Rebate) - (ret.showDiscount);
+						if (0 > Mount) {
+							var Mount = '0';
+						}
+					}
+					$("#couponMoney").text(Mount + '元');
+					$("#orderMoney").val(Mount);
+					//优惠码失败
+				} else if (0 == ret.result) {
+					api.toast({
+						msg : ret.msg,
+						duration : 1000,
+						location : 'middle'
+					});
+					return false;
+				} else {
+					api.toast({
+						msg : '参数错误！',
+						duration : 1000,
+						location : 'middle'
+					});
+					return false;
+				}
+			});
+		}
+
+		//支付剩余时间15分钟自动减少直到为0
+		function showTime() {
+			var m = 29, s = 59;
+			var timer = setInterval(function() {
+				if (s < 10) {
+					$('#showTime').html(m + ':0' + s);
+				} else {
+					$('#showTime').html(m + ':' + s);
+				}
+				s--;
+				if (s < 0) {
+					s = 59;
+					m--;
+				}
+				if ((m == 0) && (s == 0)) {
+					$('#showTime').html(0);
+					clearInterval(timer);
+				}
+			}, 1000);
+		}
+
+		//设置邮寄方式
+		function setShipping(Type) {
+			if (Type == 2) {
+				$(".ShippingAddress").show();
+			} else {
+				$(".ShippingAddress").hide();
+			}
+		}
+	</script>
+</html>

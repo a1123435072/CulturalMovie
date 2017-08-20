@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title>title</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/adminStyle.css"/>
+	</head>
+	<body>
+		<!--剧目图片加标题 begin-->
+		<div class="detailsBg">
+			<div class="detailsBox">
+				<!--剧目图片 begin-->
+				<img  id="palyImage" src=""/>
+				<!--剧目图片 end-->
+				<!--剧目简单信息 begin-->
+				<div class="orderWrap">
+					<h1 id="playName">楚剧《巡按审母》楚剧《巡按审母》</h1>
+					<span id="playDate">时间：2016-05-08 09：30</span>
+					<span id="jyName">场馆：武汉京剧院</span>
+					<span id="playAddress">地点：武汉市江岸区解放大道1813号</span>
+				</div>
+				<!--剧目简单信息 end-->
+			</div>
+		</div>
+		<!--剧目图片加标题 end-->
+		<!--订单信息 begin-->
+		<div class="commonList">
+			<dl>
+				<dd>
+					<div class="commonName">
+						订单编号：
+					</div>
+					<div class="commonRight" id="orderNum">
+						201619292016192920
+					</div>
+				</dd>
+				<dt></dt>
+				<dd>
+					<div class="commonName">
+						订单状态：
+					</div>
+					<div class="commonRight payState" id="orderStateName">
+						已付款
+					</div>
+				</dd>
+			</dl>
+		</div>
+		<!--订单信息 begin-->
+		<!--购买信息 begin-->
+		<div class="commonList">
+			<dl>
+				<dd>
+					<div class="commonName">
+						购买金额：
+					</div>
+					<div class="commonRight" id="orderPrice">
+						￥120.00
+					</div>
+				</dd>
+				<dt></dt>
+				<dd id="yh" >
+					<div class="commonName">
+						优惠券码：
+					</div>
+					<div class="commonRight price" id="yhCode">
+						73939292016192920
+					</div>
+				</dd>
+				<dt></dt>
+				<dd>
+					<div class="commonName">
+						订单时间：
+					</div>
+					<div class="commonRight" id="orderDate">
+						2016-04-01
+					</div>
+				</dd>
+				<dt></dt>
+				<dd>
+					<div class="commonName">
+						支付方式：
+					</div>
+					<div class="commonRight" id="payWayName"></div>
+				</dd>
+				<dt></dt>
+				<dd class="orderAdressDD"  id="shAddress">
+					<div class="commonName">
+						收货地址：
+					</div>
+					<div class="orderAdress">
+						<img src="../image/location.png"/>
+						<em id="orderAddress"> </em>
+					</div>
+				</dd>
+			</dl>
+		</div>
+		<!--购买信息 begin-->
+		<!--联系商家-->
+		<div class="commonList contactBusiness" id="contact"><img src="../image/phone.png"/><span id="cTel">联系商家：</span>
+		</div>
+		<div class="paymen_btn" id="toPay" >
+			<input type="button" value="立即支付"  id="payButton" class="repayInput" />
+			<input type="button" value="撤销订单"  id="cancelButton" class="cancelInput" />
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery.min.js"></script>
+	<script type="text/javascript" src="../script/funcTools.js" ></script>
+	<script type="text/javascript" src="../script/sessions.js"></script>
+	<script type="text/javascript">
+		apiready = function() {
+			getOrderDetail();
+			$("#toPay").hide();
+		};
+		//获取订单的详情
+		function getOrderDetail() {
+			var userEntity = sessionAgent.getLoginInfo();
+			var getPerformUrl = ajaxAgent.serverAction + '/app/order/orderDetail';
+			api.ajax({
+				url : getPerformUrl,
+				method : 'post',
+				timeout : 50,
+				dataType : 'json',
+				returnAll : false,
+				data : {
+					values : {
+						userId : userEntity.userId,
+						orderId : api.pageParam.id
+					}
+				}
+			}, function(ret, err) {
+				if (ret) {
+					//alert(JSON.stringify(ret));  //orderNum
+					if (ret.result == 1) {
+						$("#palyImage").attr("src", ret.detail.showPic)
+						$("#playName").html(ret.detail.showTitle);
+						if (ret.detail.orderType == "cz") {
+							$("#playDate").hide();
+							$("#jyName").hide();
+							$("#playAddress").hide();
+							$("#contact").hide();
+						} else {
+							$("#playDate").html("时间：" + ret.detail.showDate);
+							$("#jyName").html("场馆：" + ret.detail.showName);
+							$("#playAddress").html("地点：" + ret.detail.showAddress);
+							$("#cTel").html("联系商家：" + ret.detail.orderLxdh);
+						}
+						$("#orderNum").html(ret.detail.orderNo);
+						$("#orderStateName").html(ret.detail.orderStateName);
+						$("#payWayName").html(ret.detail.payWayName);
+						$("#orderPrice").html("￥" + ret.detail.payMoney);
+						if (ret.detail.yhqId == "")
+							$("#yh").hide();
+						else
+							$("#yhCode").html(ret.detail.yhqId);
+						$("#orderDate").html(ret.detail.orderTime);
+						if (ret.detail.address == null || ret.detail.address == "") {
+							//隐藏收货地址
+							$("#shAddress").hide();
+						} else {
+							//显示
+							$("#shAddress").show();
+							$("#orderAddress").html(ret.detail.address);
+						}
+						if (ret.detail.orderStateName == "待付款") {
+							$api.addEvt($api.byId('payButton'), 'click', function() {
+								toPay(ret.detail.payWay, ret.detail.orderNo, ret.detail.payMoney);
+							});
+							$api.addEvt($api.byId('cancelButton'), 'click', function() {
+								cancelOrder(ret.detail.orderId);
+							});
+							$("#toPay").show();
+						} else {
+							$("#toPay").hide();
+						}
+					} else
+						return false;
+				} else {
+					api.toast({
+						msg : '连接失败！',
+						duration : 2000,
+						location : "middle"
+					});
+				}
+			});
+		}
+
+		//取消订单
+		function cancelOrder(orderId) {
+			var userEntity = sessionAgent.getLoginInfo();
+			var userId = userEntity.userId;
+			var canCelUrl = ajaxAgent.serverAction + '/app/index/canCelOrder';
+			api.showProgress();
+			api.ajax({
+				url : canCelUrl,
+				method : 'post',
+				timeout : 50,
+				dataType : 'json',
+				returnAll : false,
+				data : {
+					values : {
+						userId : userId,
+						orderId : orderId
+					}
+				}
+			}, function(ret, err) {
+				if (ret) {
+					if (ret.result == 1) {
+						api.toast({
+							msg : '撤销成功！',
+							duration : 3000,
+							location : "middle"
+						});
+						//刷新订单列表
+						api.execScript({
+							name : "win_userListBar",
+							frameName : "frm_userOrderList",
+							script : "getPerform()",
+						});
+						api.closeWin();
+					} else {
+						api.toast({
+							msg : ret.msg,
+							duration : 3000,
+							location : "middle"
+						});
+					}
+				} else {
+					alert("取消失败！");
+				}
+			});
+			api.hideProgress();
+		}
+
+		//去支付
+		function toPay(payType, orderNum, price) {
+			if (payType == 1) {
+				payByAliPay(orderNum, price, '订单支付');
+			} else if (payType == 5) {
+				payByWeixin(orderNum, price, '订单支付');
+			} else {
+				alert("支付失败");
+				return false;
+			}
+		}
+	</script>
+</html>

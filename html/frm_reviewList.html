@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>评论列表</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/style.css" />
+		<style type="text/css">
+		</style>
+	</head>
+	<body>
+		<div class="wrapBox">
+			<div class="commonInstructionBox marginTop0 commentsBox">
+				<ul class="commentsUL"></ul>
+			</div>
+			<!--写评论-->
+			<div class="sendCommentsBox fixed">
+				<div class="marginLeftRight30">
+					<input type="submit" value="写评论" onClick="showBox()">
+				</div>
+			</div>
+			<!--评论框-->
+			<div class="shadowBg">
+				<div class="sendCommentsBox fixed">
+					<div class="marginLeftRight30 flex-wrap writeReviewBox">
+						<span class="cancelBtn flex-con" onClick="hideBox()">取消</span>
+						<span class="writeReview flex-con">写评论</span>
+						<span class="submitBtn flex-con" onClick="setAddSubmit(3)">提交</span>
+					</div>
+					<div class="reviewTextareaBox">
+						<textarea id="reviewContent" class="writeReviewTextarea"></textarea>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery.min.js"></script>
+	<script type="text/javascript" src="../script/funcTools.js" ></script>
+	<script type="text/javascript" src="../script/sessions.js" ></script>
+	<script type="text/javascript">
+		var page = 1;
+		apiready = function() {
+			getReview();
+			//头部下拉刷新
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				getReview();
+				api.refreshHeaderLoadDone();
+			});
+			//底部下拉加载更多
+			api.addEventListener({
+				name : 'scrolltobottom'
+			}, function(ret, err) {
+				page++;
+				getReview();
+				api.parseTapmode();
+			});
+		}
+		//获取评论列表
+		function getReview() {
+			var getReviewUrl = ajaxAgent.serverAction + '/app/index/getReview';
+			getReviewUrl += '?currentPage=' + page + '&pageSize=10&rdnum=' + Math.random();
+			api.showProgress();
+			api.ajax({
+				url : getReviewUrl,
+				method : 'get',
+				timeout : 50,
+				dataType : 'json',
+				returnAll : false,
+				data : {
+					values : {
+						reviewType : 3,
+						infoId : api.pageParam.infoId
+					}
+				}
+			}, function(ret, err) {
+				if (ret.hot_list) {
+					//暂无数据
+					if ((0 == ret.hot_list.length ) && (1 == page)) {
+						$(".commentsUL").html('<p style="text-align: center;">暂无数据！</p>');
+						return false;
+					} else if ((0 == ret.hot_list.length ) && (1 != page)) {
+						api.toast({
+							msg : '没有更多地数据了',
+							duration : 1000,
+							location : 'middle'
+						});
+						return false;
+					} else {
+						var reviewHtml = '';
+						$.each(ret.hot_list, function(i, val) {
+							reviewHtml += '<li><div class="commentsTitle"><em><img src="' + val.reviewHead + '"></em><span>' + val.userName + '</span><div class="time">' + val.reviewDate + '</div></div><div class="commentsContent">' + val.reviewContent + '</div></li>';
+						});
+						if (page == 1) {
+							$(".commentsUL").html(reviewHtml);
+						} else {
+							$(".commentsUL").append(reviewHtml);
+						}
+					}
+				}
+			});
+			api.parseTapmode();
+			api.hideProgress();
+		}
+	</script>
+</html>

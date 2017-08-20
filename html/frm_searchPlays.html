@@ -1,0 +1,166 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title>购票页面 -筛选器关闭</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/style.css"/>
+		<style>
+		</style>
+	</head>
+	<body>
+		<div id="wrap" class="flex-wrap flex-vertical">
+			<div id="main">
+				<!--剧目列表 begin-->
+				<div class="repertoireList">
+					<ul id="list">
+						<!--           <li>
+						<img src="../image/upload/order_pic01.png" class="repertoireListPic"/>
+						<div class="listWrap">
+						<div class="repertoireTitle">
+						<span class="theaterName">京剧《西厢记》9折京剧9折京剧9折京剧</span>
+						<span class="repertoireListMoney">￥100</span>
+						</div>
+						<div class="repertoireWidth100 repertoireTime">
+						<img src="../image/clock.png"><span>2016-06-25</span>
+						</div>
+						<div class="repertoireWidth100 theaterBox"><img src="../image/location.png">武汉京剧院</div>
+						</div>
+						</li>
+						-->
+					</ul>
+				</div>
+				<!--剧目列表 end-->
+			</div>
+		</div>
+	</body>
+</html>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/jquery.min.js"></script>
+<script type="text/javascript" src="../script/funcTools.js"></script>
+<script type="text/javascript">
+	var page = 1;
+	var pageSize = 10;
+	//每一页加载数量
+	var hot_listtotal = 0;
+	apiready = function() {
+		//alert(api.pageParam.orderState);
+		getPerform();
+		setRefreshHeader();
+		api.addEventListener({
+			name : 'scrolltobottom'
+		}, function(ret, err) {
+			var sumNum = page * pageSize;
+			if (page > 1 && sumNum >= hot_listtotal) {
+				var msg = '暂无数据...';
+				if (hot_listtotal == 0)
+					msg = '暂无数据...';
+				else
+					msg = '已经到底了...';
+				api.toast({
+					msg : msg,
+					duration : 3000,
+					location : "middle"
+				});
+			} else {
+				page++;
+				getPerform();
+				api.parseTapmode();
+			}
+		});
+	}
+	//根据条件查询
+	function getPerform() {
+		var getPerformUrl = ajaxAgent.serverAction + '/app/index/performList ';
+		api.showProgress();
+		api.ajax({
+			url : getPerformUrl,
+			method : 'post',
+			timeout : 50,
+			dataType : 'json',
+			returnAll : false,
+			data : {
+				values : {
+					keyWord : api.pageParam.keyWord,
+					currentPage : page,
+					pageSize : pageSize,
+					artId : 0
+				}
+			}
+		}, function(ret, err) {
+			if (ret) {
+				//alert(JSON.stringify(ret));
+				if (ret.result == 1) {
+					//统计总量
+					if (ret.hot_listtotal)
+						hot_listtotal = ret.hot_listtotal;
+					else
+						hot_listtotal = 0;
+					if (ret.hot_list) {
+						if ((ret.hot_list.length == 0) && (page == 1)) {
+							$("#list").html('<p style="text-align: center;">暂无数据！</p>');
+							return false;
+						} else {
+							var html = '';
+							$.each(ret.hot_list, function(i, val) {
+								var onclickFunction = "showReper(" + val.id + ",'" + val.showTitle + "',''," + val.isSeatFlag + "," + val.isSaleFlag + ",'" + val.showAddress + "'," + val.isCollect + ") "
+								html += '            <li onclick="' + onclickFunction + '">';
+								//Name, Pic ,isSeatFlag, isSaleFlag ,Address, isCollect
+								html += '              <img src="' + val.showPic + '" class="repertoireListPic"/>';
+								html += '                <div class="listWrap">';
+								html += '                    <div class="repertoireTitle">';
+								html += '                        <span class="theaterName">' + val.showTitle + '</span>';
+								html += '                      <span class="repertoireListMoney">￥' + val.minPrice + '起</span>';
+								html += '                    </div>';
+								html += '                  <div class="repertoireWidth100 repertoireTime">';
+								html += '                    <img src="../image/clock.png"><span>' + val.showDate + '</span>';
+								html += '                  </div>';
+								html += '                  <div class="repertoireWidth100 theaterBox"><img src="../image/location.png">' + val.showAddress + '</div>';
+								html += '                </div>';
+								html += '            </li>';
+							});
+							if (page == 1) {
+								$("#list").html(html);
+							} else {
+								$("#list").append(html);
+							}
+						}
+					} else {
+						api.toast({
+							msg : "没有数据了...",
+							duration : 5000,
+							location : "middle"
+						});
+					}
+				}//if result==1
+				else {//操作失败
+					api.toast({
+						msg : ret.msg,
+						duration : 5000,
+						location : "middle"
+					});
+				}
+			} else {
+				alert(JSON.stringify(err));
+			}
+		});
+		api.parseTapmode();
+		api.hideProgress();
+	}
+
+	//头部下拉刷新
+	function setRefreshHeader() {
+		api.setRefreshHeaderInfo({
+			visible : true,
+			bgColor : '#ccc',
+			textColor : '#fff',
+			textDown : '下拉刷新...',
+			textUp : '松开刷新...',
+			showTime : true
+		}, function(ret, err) {
+			getPerform();
+			api.refreshHeaderLoadDone();
+		});
+	}
+</script>

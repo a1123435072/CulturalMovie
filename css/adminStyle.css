@@ -1,0 +1,1524 @@
+html, body {
+	font-size: 14px;
+	height: 100%;
+}
+.hover {
+	opacity: .8;
+}
+
+.flex-wrap {
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: flex;
+}
+.flex-con {
+	-webkit-box-flex: 1;
+	-webkit-flex: 1;
+	flex: 1;
+}
+.flex-vertical {
+	-webkit-box-orient: vertical;
+	-webkit-flex-flow: column;
+	flex-flow: column;
+}
+
+.border-t, .border-b {
+	position: relative;
+}
+.border-t:before, .border-b:after {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0;
+	background: #ddd;
+	right: 0;
+	height: 1px;
+	-webkit-transform: scaleY(0.5);
+	transform: scaleY(0.5);
+	-webkit-transform-origin: 0 0;
+	transform-origin: 0 0;
+}
+.border-b:after {
+	top: auto;
+	bottom: 0;
+}
+
+#wrap {
+	height: 100%;
+}
+
+/*公共*/
+.fl {
+	float: left
+}
+.fr {
+	float: right;
+}
+.overflow {
+	overflow: hidden;
+}
+/*字体颜色*/
+.fontColor666 {
+	color: #666;
+}
+.fontColor999 {
+	color: #999;
+}
+/*字体字号*/
+.fontSize20 {
+	font-size: 16px;
+}
+.fontSize22 {
+	font-size: 16px;
+}
+.fontSize24 {
+	font-size: 24px;
+}
+
+/*边距*/
+.marB10 {
+	margin-bottom: 10px;
+}
+.marB20 {
+	margin-bottom: 20px;
+}
+.marB30 {
+	margin-bottom: 30px;
+}
+.marT20 {
+	margin-top: 20px;
+}
+/*背景*/
+.bg_fff {
+	background-color: #fff;
+}
+/*边框*/
+.border {
+	border: 1px solid #ebebeb;
+}
+.borderB {
+	border-bottom: 1px solid #ebebeb;
+}
+.borderL {
+	border-left: 1px solid #ebebeb;
+}
+.borderR {
+	border-right: 1px solid #ebebeb;
+}
+.borderT {
+	border-top: 1px solid #ebebeb;
+}
+.noborB {
+	border-bottom: 0;
+}
+/*系统设置*/
+.main_bg {
+	background-color: #f0f0f5;
+}
+.setUp {
+	background-color: #fff;
+}
+.setHei {
+	margin-left: 30px;
+	padding-right: 20px;
+}
+.setBorder {
+	height: 70px;
+	line-height: 70px;
+	border-bottom: 1px solid #ebebeb;
+}
+.fonts {
+	padding-bottom: 20px;
+}
+.fonts p {
+	padding: 10px 0 20px;
+}
+.fontsB {
+	width: 100%;
+	height: 40px;
+	line-height: 40px;
+	display: -webkit-box;
+	box-sizing: border-box;
+	border: 2px solid #e13a3a;
+	border-radius: 4px;
+	overflow: hidden;
+}
+.fontsB li {
+	width: 100%;
+	height: 36px;
+	line-height: 36px;
+	text-align: center;
+	color: #666;
+	-webkit-box-flex: 1;
+	box-sizing: border-box;
+	border-right: 2px solid #e13a3a;
+}
+.fontsB li.nobor {
+	border-right: 0;
+}
+.fontsB li.active {
+	background-color: #e13a3a;
+	color: #fff;
+}
+.caching {
+	height: 70px;
+	line-height: 70px;
+	border-bottom: 1px solid #ebebeb;
+	border-top: 1px solid #ebebeb;
+	padding: 0 20px;
+}
+.caching i {
+	width: 25px;
+	height: 35px;
+	display: inline-block;
+	background: url(../image/upload/trash.png) no-repeat;
+	margin: 20px 25px 0 0;
+	background-size: 25px;
+}
+.setUp .marT {
+	margin-top: 22px
+}
+/*.set_next{ line-height:80px;}*/
+
+/*修改资料*/
+.modifyHei {
+	height: 70px;
+	line-height: 70px;
+}
+.portrait {
+	height: 70px;
+}
+.portrait img {
+	width: 50px;
+	height: 50px;
+	background-size: 50px;
+	margin: 10px 20px 0 0;
+	border-radius: 100%;
+}
+.modifyName {
+	margin-right: 20px;
+	font-weight: normal;
+}
+.nickname {
+	width: 44px;
+	height: 42px;
+	margin: 5px 40px 0 0;
+}
+.password {
+	width: 44px;
+	height: 42px;
+	margin: 10px 40px 0 0px;
+}
+.nickname img {
+	width: 44px;
+	height: 28px;
+	background-size: 34px;
+}
+.password img {
+	width: 26px;
+	height: 36px;
+	background-size: 20px;
+	margin-left: 5px;
+}
+.set_next img {
+	margin-top: 21px;
+}
+.modify_btn {
+	width: 100%;
+	height: 70px;
+	line-height: 80px;
+	text-align: center;
+}
+.modify_btn input {
+	width: 100%;
+	height: 100%;
+	font-size: 28px;
+	color: #e13a3a;
+	cursor: pointer;
+}
+
+/*意见反馈*/
+.feedback_box {
+	padding: 4%;
+}
+.Feedback_text {
+	width: 100%;
+	border-radius: 3px;
+}
+.Feedback_text textarea {
+	width: 96%;
+	height: 96%;
+	line-height: 30px;
+	padding: 2%;
+}
+.Feedback_name {
+	height: 50px;
+	line-height: 50px;
+}
+.Feedback_name input {
+	width: 96%;
+	height: 100%;
+	padding-left: 4%;
+	font-size: 20px;
+}
+.Feedback_btn {
+	height: 70px;
+	line-height: 70px;
+	text-align: center;
+	background-color: #ff4f4f;
+	border-radius: 4px;
+}
+.Feedback_btn input {
+	width: 100%;
+	height: 100%;
+	color: #fff;
+	font-size: 24px;
+}
+
+/*个人中心-首页*/
+.user_top {
+	width: 100%;
+	height: auto;
+	background: url(../image/user_bg.png) no-repeat center center;
+	position: relative;
+}
+.userT {
+	height: 60px;
+	line-height: 60px;
+}
+.userT .back img {
+	width: 50px;
+	height: 50px;
+	margin-top: 0;
+}
+.userT .title {
+	text-align: center;
+	color: #fff;
+	font-size: 28px;
+}
+.userB {
+	text-align: center;
+	padding: 15px 0;
+}
+.userB img {
+	height: 128px;
+	width: 128px;
+	border-radius: 100%;
+}
+.userB p {
+	color: #fff;
+	font-size: 20px;
+	padding: 10px 0 0;
+}
+.user_set {
+	width: 34px;
+	height: 34px;
+	position: absolute;
+	top: 30%;
+	right: 20px;
+}
+.user_set img {
+	width: 24px;
+	height: 24px;
+}
+.allOrder h2 {
+	font-size: 22px;
+	color: #444;
+}
+.see a {
+	font-size: 20px;
+	color: #999;
+}
+.order_top {
+	padding: 5%;
+}
+.order_top dt, .order_top dd {
+	width: 47%;
+	text-align: center;
+	display: inline-block;
+}
+.order_top img {
+	width: 46px;
+	height: 40px;
+	background-size: 46px;
+}
+/*.order_top dd img{ width:72px; height:54px; background-size:72px;}*/
+.order_top p, .user_con ul li p {
+	font-size: 22px;
+	color: #666;
+	padding: 10px 0 0;
+}
+.user_con ul {
+	width: 100%;
+	padding: 40px 0;
+	overflow: auto;
+}
+.user_con ul li {
+	width: 32%;
+	float: left;
+	text-align: center;
+}
+.user_con ul li img {
+	width: 65px;
+	height: 65px;
+	background-size: 65px;
+}
+
+/*全部订单*/
+.tabNav {
+	width: 100%;
+	display: -webkit-box;
+	box-sizing: border-box;
+	font-size: 16px;
+	height: 45px;
+	background-color: #fff;
+	overflow: hidden;
+}
+.tabNav li {
+	height: 45px;
+	line-height: 45px;
+	box-flex: 1;
+	-webkit-box-flex: 1;
+	box-sizing: border-box;
+	text-align: center;
+	color: #666;
+	border-bottom: 2px solid transparent;
+	width: 100%;
+}
+.tabNav li.active {
+	color: #e23a3a;
+	border-bottom: 3px #e23a3a solid;
+	font-weight: bold;
+}
+.orderList .item {
+	position: relative;
+	display: block;
+	padding-left: 10px;
+}
+.orderList .cnt {
+	padding: 7px 10px 10px 0;
+	display: box;
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: flex;
+	background-size: auto 1px;
+}
+.orderList .pic {
+	margin-right: 10px;
+	background: center;
+}
+.orderList img.pic {
+	margin-top: 7px;
+	margin-bottom: 5px;
+	border-radius: 3px;
+}
+.orderList .wrap {
+	-webkit-box-flex: 1;
+	-webkit-flex: 1;
+	flex: 1;
+	position: relative;
+}
+.orderList .wrap2 {
+	display: table;
+	height: 100px;
+	width: 100%;
+}
+.orderList .content {
+	-webkit-box-flex: 1;
+	-webkit-flex: 1;
+	flex: 1;
+	box-flex: 1;/* display: table-cell;*/
+	vertical-align: middle;
+}
+.orderList .shopname {
+	color: #333;
+	font-size: 18px; /*max-width: 11em; white-space: nowrap; word-wrap: normal; text-overflow: ellipsis;  min-height: 10px; */
+	padding-bottom: 2px;
+	padding-top: 3px;
+	display: inline-block;
+	height: 40px;
+	line-height: 20px;
+	overflow: hidden;
+}
+.shopname h2 {
+	width: 75%;
+	float: left;
+}
+.shopname span {
+	font-size: 14px;
+}
+.shopname .green {
+	color: #439740;
+}
+.shopname .orange {
+	color: #ff6a35;
+}
+.shopname .gray {
+	color: #9d9d9d;
+}
+.orderList .title {
+	color: #666;
+	line-height: 16px;
+	font-size: 13px;
+	max-height: 30px;
+	overflow: hidden;
+	padding-top: 3px;
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: flex;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	-webkit-flex-flow: column;
+	flex-flow: column;
+}
+.orderList .hot-title {
+	margin-bottom: 8px;
+}
+.orderList .hot-subtitle {
+	margin-bottom: 9px;
+}
+.orderList .info {
+	margin-top: 6px;
+	margin-bottom: 6px;
+	color: #666;
+	font-size: 12px;
+	position: relative;
+	line-height: 15px;
+	display: box;
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: flex;
+	height: 15px;
+}
+.orderList .distance {
+	-webkit-box-flex: 1;
+	box-flex: 1;
+	flex: 1;
+	-ms-box-flex: 1;
+	-ms-flex: 1;
+	margin-top: 5px;
+	color: #999;
+	font-size: 16px;
+	position: absolute;
+	bottom: 0;
+	right: 0;
+}
+.orderList .distance img {
+	width: 10px;
+	height: 10px;
+	vertical-align: top;
+	margin: 0;
+	position: absolute;
+	bottom: 0;
+}
+.orderList .classify {
+	color: #ff5151;
+	font-weight: bold;
+	font-size: 18px;
+	position: absolute;
+	bottom: 0;
+}
+.comment p {
+	position: absolute;
+	bottom: 25px;
+}
+
+/*订单详情*/
+.detailsBg {
+	position: relative;
+	display: block;
+	padding: 30px 0px;
+	background: url(../image/Blurred-Background-01.png) no-repeat;
+}
+.detailsBox {
+	padding: 0 30px;
+	min-height: 190px;
+	display: box;
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: flex;
+}
+.detailsBg img {
+	width: 140px;
+	height: 190px;
+	margin-right: 20px;
+}
+
+.orderWrap {
+	flex: 1;
+	-webkit-box-flex: 1;
+	-webkit-flex: 1;
+}
+.orderWrap h1, .orderWrap span {
+	color: #fff;
+}
+.orderWrap h1 {
+	font-size: 32px;
+}
+.orderWrap span {
+	font-size: 26px;
+	display: inline-block;
+	width: 100%;
+	margin: 3px 0;
+}
+
+.commonList {
+	background: #fff;
+	border-top: solid 1px #f6f6f6;
+	border-bottom: solid 1px #e9e9eb;
+	margin: 11px 0;
+}
+.commonList dl {
+	display: block;
+}
+.commonList dl dd, .commonList dl dt {
+	margin-left: 30px;
+	padding-right: 30px;
+}
+.commonList dl dd {
+	display: box;
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: flex;
+	padding-top: 15px;
+	padding-bottom: 15px;
+	line-height: 48px;
+}
+.commonList dl dd .commonName {color#666;
+	font-size: 32px;
+	display: inline-block;
+}
+.commonList dl dd .commonRight {
+	float: right;
+	color: #999;
+	font-size: 26px;
+	-webkit-box-flex: 1;
+	box-flex: 1;
+	flex: 1;
+	-ms-box-flex: 1;
+	-ms-flex: 1;
+	text-align: right;
+}
+.commonList dl dt {
+	height: 1px;
+	background: #ebebeb;
+}
+
+.commonList dl dd  .payState {
+	color: #439740;
+}
+.commonList dl dd  .price {
+	color: #ff6f3c;
+	font-size: 32px;
+}
+.commonList dl dd.orderAdressDD {
+	display: block;
+}
+.commonList dl dd .orderAdress {
+	width: 100%;
+	line-height: 30px;
+	margin-top: 15px;
+	text-align: left;
+	color: #999;
+	font-size: 26px;
+	display: box;
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: flex;
+	margin-bottom: 10px;
+}
+.commonList dl dd .orderAdress img {
+	width: 33px;
+	height: 47px;
+	margin-right: 10px;
+}
+.commonList dl dd .orderAdress em {
+	font-style: normal;
+	flex: 1;
+	-webkit-box-flex: 1;
+	-webkit-flex: 1;
+}
+
+.contactBusiness {
+	text-align: center;
+	height: 88px;
+	line-height: 88px;
+	font-size: 26px;
+	color: #999;
+}
+.contactBusiness img {
+	width: 35px;
+	vertical-align: sub;
+	margin-right: 20px;
+}
+
+/*我的钱包*/
+.wallet_top {
+	width: 100%;
+	height: auto;
+	padding: 30px 0;
+	background: url(../image/wallet_bg.png) no-repeat center center;
+}
+.wallet_balance {
+	text-align: center;
+	margin: 0 auto;
+	background: url(../image/wallet_balance.png) no-repeat center center;
+}
+.wallet_balance span {
+	font-size: 30px;
+	color: #fff;
+	padding: 50px 0 10px;
+}
+.wallet_balance p {
+	font-size: 32px;
+	color: #fff;
+}
+.wallet_con {
+	overflow: hidden;
+}
+.wallet_con dt, .wallet_con dd {
+	width: 49%;
+	float: left;
+	text-align: center;
+	padding: 20px 0 10px;
+}
+.wallet_con dt span {
+	color: #ff6f3c;
+	font-size: 30px;
+}
+.wallet_con dd span {
+	color: #4e9b4b;
+	font-size: 30px;
+}
+.wallet_con p {
+	color: #666;
+	font-size: 20px;
+	padding-top: 10px;
+}
+.wallet_list li {
+	margin-left: 20px;
+	border-bottom: 1px solid #ddd;
+	padding: 20px 20px 20px 0;
+	font-size: 24px;
+	color: #666;
+	overflow: hidden;
+}
+.con_height, .con_height i {
+	height: 45px;
+	line-height: 45px;
+}
+.wallet_list i img {
+	width: 45px;
+	height: 45px;
+	background-size: 45px;
+	margin-right: 20px;
+}
+.consumption_t span, .wallet_list li .item .zhifu {
+	color: #ff6f3c;
+}
+.recharge_t span, .wallet_list li .item .yinlian, .recharge_balance .green {
+	color: #4e9b4b;
+}
+.wallet_list li .item {
+	padding: 10px 0 0;
+	line-height: 30px;
+	overflow: hidden;
+}
+.wallet_list li .item em {
+	width: 80%;
+	font-size: 20px;
+	color: #999;
+	display: block;
+	float: left;
+}
+.wallet_list li .item .zhifu, .wallet_list li .item .yinlian {
+	width: 55%;
+}
+.wallet_list li .item .width65 {
+	width: 65%;
+}
+.wallet_btn {
+	height: 50px;
+	line-height: 50px;
+	margin-bottom: 50px;
+	text-align: center;
+}
+.wallet_btn a {
+	display: block;
+	width: 60%;
+	height: 48px;
+	line-height: 48px;
+	background-color: #fff;
+	font-size: 24px;
+	color: #999;
+	margin: 0 auto;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}
+.wallet_btn a i {
+	margin-right: 10px;
+}
+.wallet_btn a i img {
+	width: 24px;
+	height: 24px;
+	background-size: 24px;
+	vertical-align: middle;
+	margin-bottom: 8px;
+}
+
+/*我要充值*/
+.recharge_balance {
+	font-size: 24px;
+}
+.recharge_balance .text {
+	width: 55%;
+	height: 40px;
+	line-height: 40px;
+	background-color: #f0f0f5;
+	border-radius: 4px;
+	margin: 15px 5px 0 0;
+	padding-left: 3px;
+}
+.recharge_payment h4 {
+	height: 70px;
+	line-height: 70px;
+	font-size: 20px;
+	color: #666;
+	padding-left: 20px;
+}
+.payment_con {
+	font-size: 24px;
+}
+.payment_con .alipay, .payment_con .weixin {
+	width: 45px;
+	height: 45px;
+	margin: 12px 20px 0 0;
+}
+.payment_con .unionPay {
+	width: 60px;
+	height: 38px;
+	margin: 15px 20px 0 0;
+}
+.payment_con .alipay img, .payment_con .weixin img {
+	width: 45px;
+	height: 45px;
+	background-size: 45px;
+}
+.payment_con .unionPay img {
+	width: 60px;
+	height: 38px;
+	background-size: 80px;
+}
+.pay_checkbox {
+	width: 22px;
+	height: 22px;
+	margin: 25px 15px 0 0;
+	background: #d8d8d8;
+	border: solid 1px #d8d8d8;
+	border-radius: 22px;
+}
+.pay_checkbox:checked {
+	background-color: #4e9d4b;
+	border: solid 1px #4e9d4b;
+	text-align: center;
+}
+.pay_checkbox:checked:before, .pay_checkbox:checked:after {
+	left: 3px;
+}
+.paymen_btn {
+	width: 100%;
+	height: 70px;
+	line-height: 70px;
+	text-align: center;
+
+}
+.paymen_btn input {
+	width: 100%;
+	height: 100%;
+	color: #fff;
+	font-size: 24px;    
+    float:left;
+    outline: none;
+    background-color: #e13a3a;
+}
+
+.paymen_btn  .repayInput{
+    background-color: #e13a3a;
+    width:50%;
+}
+.paymen_btn  .cancelInput{
+    background-color: #333;
+    color: #fff;
+    width:50%;
+}
+
+
+/*我的收藏*/
+.collection h2 {
+	color: #333;
+}
+.comment i {
+	width: 13px;
+	height: 18px;
+	margin: 5px 10px 0 0;
+}
+.comment i img {
+	width: 13px;
+	height: 18px;
+	background-size: 13px;
+	vertical-align: middle;
+}
+.orderList .date {
+	color: #999;
+	font-size: 18px;
+	position: absolute;
+	bottom: 0;
+}
+.orderList .date i {
+	width: 20px;
+	height: 20px;
+	margin: 0 10px 0 0;
+}
+.orderList .date i img {
+	width: 20px;
+	height: 20px;
+	background-size: 20px;
+	vertical-align: middle;
+	margin-bottom: 3px;
+}
+.orderList .evaluate {
+	color: #999;
+	font-size: 16px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 2px 5px;
+	position: absolute;
+	bottom: 0;
+	right: 5px;
+}
+.orderList .evaluate i {
+	width: 20px;
+	height: 17px;
+	margin: 0 10px 0 0;
+}
+.orderList .evaluate i img {
+	width: 20px;
+	height: 17px;
+	background-size: 20px;
+	vertical-align: middle;
+}
+
+/*帮助中心*/
+.help_center h2 {
+	width: 70%;
+	padding: 30px 0 20px;
+	margin: 0 auto;
+	font-size: 34px;
+	text-align: center;
+	border-bottom: 1px solid #d8d8d8;
+}
+.help_box {
+	padding: 0 20px;
+	overflow: hidden;
+}
+.help_box h3 {
+	padding: 0 0 20px;
+	font-size: 26px;
+	margin: 40px auto 0;
+	text-align: center;
+}
+.help_box .procedure {
+	width: 100%;
+	height: auto;
+	padding: 20px 0 0;
+}
+.help_box .procedure img {
+	width: 100%;
+	background-size: 100%;
+}
+.help_box p {
+	font-size: 18px;
+	line-height: 25px;
+	color: #666;
+	text-indent: 2em;
+}
+.help_box p i {
+	font-style: normal;
+	color: #ff4b4b;
+}
+.help_payment {
+	padding-top: 40px;
+	overflow: hidden;
+}
+.help_payment li {
+	width: 33%;
+	float: left;
+	height: auto;
+}
+.help_payment li img {
+	width: 80%;
+	height: auto;
+	background-size: 80%;
+}
+.disclaimer {
+	margin-bottom: 50px;
+	overflow: hidden;
+}
+.help_center h2.helpMargin {
+	margin-bottom: 20px;
+}
+.help_box .help_line {
+	height: 1px;
+	border-bottom: 1px solid #d8d8d8;
+	width: 60%;
+	margin: 0 auto 20px;
+}
+
+/*适应屏幕*/
+@media (min-width: 768px) and (max-width: 979px) {
+	.noborB {
+		border-bottom: 0;
+	}
+	setBorder {
+		height: 70px;
+		line-height: 70px;
+	}
+	.picture span, .fonts p {
+		font-size: 22px;
+	}
+	.caching, .setBottom {
+		font-size: 22px;
+	}
+	.Feedback_text {
+		height: 350px;
+		font-size: 24px;
+	}
+	.userB img {
+		height: 128px;
+		width: 128px;
+	}
+	.order_top p, .user_con ul li p {
+		font-size: 20px;
+	}
+	.user_con ul li img {
+		width: 75px;
+		height: 75px;
+		background-size: 75px;
+	}
+	.orderList img.pic {
+		width: 150px;
+		height: 150px;
+	}
+
+	/*订单详情*/
+	.detailsBg {
+		padding: 30px 0px;
+	}
+	.detailsBox {
+		padding: 0 30px;
+		min-height: 190px;
+	}
+	.detailsBg img {
+		width: 140px;
+		height: 190px;
+		margin-right: 20px;
+	}
+
+	.orderWrap h1 {
+		font-size: 32px;
+	}
+	.orderWrap span {
+		font-size: 26px;
+		margin: 3px 0;
+	}
+
+	.commonList {
+		margin: 11px 0;
+	}
+	.commonList dl dd, .commonList dl dt {
+		margin-left: 30px;
+		padding-right: 30px;
+	}
+	.commonList dl dd {
+		padding-top: 15px;
+		padding-bottom: 15px;
+		line-height: 48px;
+	}
+	.commonList dl dd .commonName {
+		font-size: 32px;
+	}
+	.commonList dl dd .commonRight {
+		font-size: 26px;
+	}
+
+	.commonList dl dd  .price {
+		font-size: 32px;
+	}
+	.commonList dl dd .orderAdress {
+		line-height: 30px;
+		margin-top: 15px;
+		font-size: 26px;
+		margin-bottom: 10px;
+	}
+	.commonList dl dd .orderAdress img {
+		width: 33px;
+		height: 47px;
+		margin-right: 10px;
+	}
+
+	.contactBusiness {
+		height: 88px;
+		line-height: 88px;
+		font-size: 26px;
+	}
+	.contactBusiness img {
+		width: 35px;
+		margin-right: 20px;
+	}
+
+	/*我的钱包*/
+	.wallet_balance {
+		width: 220px;
+		height: 220px;
+		background-size: 220px;
+	}
+	.wallet_balance span {
+		font-size: 26px;
+		color: #fff;
+		padding: 50px 0 10px;
+	}
+	.wallet_balance p {
+		font-size: 28px;
+		color: #fff;
+	}
+	/*我要充值*/
+	.recharge_balance .text {
+		width: 50%;
+	}
+
+	/*我的收藏*/
+	.orderList .date, .orderList .evaluate {
+		font-size: 18px;
+	}
+
+	/*帮助中心*/
+	.help_center h2 {
+		font-size: 28px;
+	}
+	.help_box h3 {
+		font-size: 22px;
+	}
+}
+
+@media (max-width: 767px) {
+	.noborB {
+		border-bottom: 0;
+	}
+	.setBorder {
+		height: 70px;
+		line-height: 70px;
+	}
+	.picture span, .fonts p {
+		font-size: 18px;
+	}
+	.caching, .setBottom {
+		font-size: 18px;
+	}
+	.caching i {
+		width: 20px;
+		height: 30px;
+		background-size: 20px;
+		margin: 23px 25px 0 0;
+	}
+	.Feedback_text {
+		height: 250px;
+		font-size: 20px;
+	}
+	.userB img {
+		height: 128px;
+		width: 128px;
+	}
+	.order_top p, .user_con ul li p {
+		font-size: 20px;
+	}
+	.user_con ul li img {
+		width: 75px;
+		height: 75px;
+		background-size: 75px;
+	}
+	.orderList img.pic {
+		width: 120px;
+		height: 120px;
+	}
+
+	/*修改资料*/
+	.modify, .recharge_balance {
+		font-size: 20px;
+	}
+	.nickname img {
+		width: 30px;
+		height: 22px;
+		background-size: 30px;
+	}
+	.password img {
+		width: 20px;
+		height: 30px;
+		background-size: 20px;
+		margin-left: 5px;
+	}
+	.nickname {
+		width: 44px;
+		height: 42px;
+		margin: 5px 20px 0 0;
+	}
+	.password {
+		width: 44px;
+		height: 42px;
+		margin: 10px 20px 0 0px;
+	}
+	.modify_btn input {
+		font-size: 24px;
+	}
+
+	/*订单详情*/
+	.detailsBg {
+		padding: 20px 0px;
+	}
+	.detailsBox {
+		padding: 0 15px;
+		min-height: 120px;
+	}
+	.detailsBg img {
+		width: 88px;
+		height: 120px;
+		margin-right: 15px;
+	}
+
+	.orderWrap h1 {
+		font-size: 18px;
+		line-height: 150%;
+	}
+	.orderWrap span {
+		font-size: 14px;
+		margin: 3px 0;
+	}
+
+	.commonList {
+		margin: 11px 0;
+	}
+	.commonList dl dd, .commonList dl dt {
+		margin-left: 20px;
+		padding-right: 20px;
+	}
+	.commonList dl dd {
+		padding-top: 10px;
+		padding-bottom: 10px;
+		line-height: 29px;
+	}
+	.commonList dl dd .commonName {
+		font-size: 20px;
+	}
+	.commonList dl dd .commonRight {
+		font-size: 14px;
+	}
+
+	.commonList dl dd  .price {
+		font-size: 20px;
+	}
+	.commonList dl dd .orderAdress {
+		line-height: 20px;
+		margin-top: 10px;
+		font-size: 14px;
+		margin-bottom: 10px;
+	}
+	.commonList dl dd .orderAdress img {
+		width: 20px;
+		height: 29px;
+		margin-right: 10px;
+	}
+
+	.contactBusiness {
+		height: 57px;
+		line-height: 57px;
+		font-size: 14px;
+	}
+	.contactBusiness img {
+		width: 24px;
+		margin-right: 10px;
+	}
+
+	/*我的钱包*/
+	.wallet_balance {
+		width: 200px;
+		height: 200px;
+		background-size: 200px;
+	}
+	.wallet_balance span {
+		font-size: 26px;
+		color: #fff;
+		padding: 50px 0 10px;
+	}
+	.wallet_balance p {
+		font-size: 28px;
+		color: #fff;
+	}
+	.wallet_con dt span {
+		font-size: 26px;
+	}
+	.con_height, .con_height i {
+		height: 35px;
+		line-height: 35px;
+	}
+	.wallet_list i img {
+		width: 35px;
+		height: 35px;
+		background-size: 35px;
+	}
+	.wallet_list li {
+		font-size: 18px;
+	}
+	.wallet_list li .item em {
+		font-size: 16px;
+	}
+	.wallet_btn a {
+		font-size: 18px;
+	}
+	.wallet_btn a i img {
+		width: 20px;
+		height: 20px;
+		background-size: 20px;
+	}
+	/*我要充值*/
+	.recharge_balance .text {
+		width: 50%;
+	}
+
+	/*我的收藏*/
+	.orderList .date, .orderList .evaluate {
+		font-size: 15px;
+	}
+
+	/*帮助中心*/
+	.help_center h2 {
+		font-size: 24px;
+	}
+	.help_box h3 {
+		font-size: 18px;
+	}
+}
+
+@media (max-width: 480px) {
+	.noborB {
+		border-bottom: 0;
+	}
+	.setBorder {
+		height: 70px;
+		line-height: 70px;
+	}
+	.picture span, .fonts p {
+		font-size: 18px;
+	}
+	.caching, .setBottom {
+		font-size: 18px;
+	}
+	.caching i {
+		width: 20px;
+		height: 30px;
+		background-size: 20px;
+		margin: 23px 25px 0 0;
+	}
+	.Feedback_text {
+		height: 150px;
+		font-size: 16px;
+	}
+	.userB img {
+		height: 108px;
+		width: 108px;
+	}
+	.order_top p, .user_con ul li p {
+		font-size: 18px;
+	}
+	.user_con ul li img {
+		width: 45px;
+		height: 45px;
+		background-size: 50px;
+	}
+	.orderList img.pic {
+		width: 80px;
+		height: 80px;
+	}
+	.shopname h2 {
+		font-size: 16px;
+	}
+	.comment p {
+		font-size: 14px;
+	}
+	/*意见反馈*/
+	.Feedback_text textarea, .Feedback_name input {
+		font-size: 16px;
+	}
+	.Feedback_btn {
+		height: 50px;
+		line-height: 50px;
+	}
+	.Feedback_btn input {
+		font-size: 20px;
+	}
+
+	/*修改资料*/
+	.modify, .recharge_balance, .payment_con {
+		font-size: 20px;
+	}
+	.nickname img {
+		width: 30px;
+		height: 22px;
+		background-size: 30px;
+	}
+	.password img {
+		width: 20px;
+		height: 30px;
+		background-size: 20px;
+		margin-left: 5px;
+	}
+	.nickname {
+		width: 44px;
+		height: 42px;
+		margin: 5px 20px 0 0;
+	}
+	.password {
+		width: 44px;
+		height: 42px;
+		margin: 10px 20px 0 0px;
+	}
+	.modify_btn input {
+		font-size: 24px;
+	}
+
+	/*订单详情*/
+	.detailsBg {
+		padding: 20px 0px;
+	}
+	.detailsBox {
+		padding: 0 15px;
+		min-height: 120px;
+	}
+	.detailsBg img {
+		width: 88px;
+		height: 120px;
+		margin-right: 15px;
+	}
+
+	.orderWrap h1 {
+		font-size: 18px;
+		line-height: 150%;
+	}
+	.orderWrap span {
+		font-size: 14px;
+		margin: 3px 0;
+	}
+
+	.commonList {
+		margin: 11px 0;
+	}
+	.commonList dl dd, .commonList dl dt {
+		margin-left: 20px;
+		padding-right: 20px;
+	}
+	.commonList dl dd {
+		padding-top: 10px;
+		padding-bottom: 10px;
+		line-height: 29px;
+	}
+	.commonList dl dd .commonName {
+		font-size: 20px;
+	}
+	.commonList dl dd .commonRight {
+		font-size: 14px;
+	}
+
+	.commonList dl dd  .price {
+		font-size: 20px;
+	}
+	.commonList dl dd .orderAdress {
+		line-height: 20px;
+		margin-top: 10px;
+		font-size: 14px;
+		margin-bottom: 10px;
+	}
+	.commonList dl dd .orderAdress img {
+		width: 20px;
+		height: 29px;
+		margin-right: 10px;
+	}
+
+	.contactBusiness {
+		height: 57px;
+		line-height: 57px;
+		font-size: 14px;
+	}
+	.contactBusiness img {
+		width: 24px;
+		margin-right: 10px;
+	}
+
+	/*我的钱包*/
+	.wallet_balance {
+		width: 180px;
+		height: 180px;
+		background-size: 180px;
+	}
+	.wallet_balance span {
+		font-size: 26px;
+		color: #fff;
+		padding: 50px 0 10px;
+	}
+	.wallet_balance p {
+		font-size: 28px;
+		color: #fff;
+	}
+	.wallet_con dt span, .wallet_con dd span {
+		font-size: 26px;
+	}
+	.con_height, .con_height i {
+		height: 35px;
+		line-height: 35px;
+	}
+	.wallet_list i img {
+		width: 35px;
+		height: 35px;
+		background-size: 35px;
+	}
+	.wallet_list li {
+		font-size: 18px;
+	}
+	.wallet_list li .item em {
+		font-size: 16px;
+	}
+	.wallet_btn a {
+		font-size: 18px;
+	}
+	.wallet_btn a i img {
+		width: 20px;
+		height: 20px;
+		background-size: 20px;
+	}
+
+	/*我要充值*/
+	.recharge_balance .text {
+		width: 50%;
+	}
+
+	/*我的收藏*/
+	.orderList .date, .orderList .evaluate {
+		font-size: 15px;
+	}
+
+	/*帮助中心*/
+	.help_center h2 {
+		font-size: 24px;
+	}
+	.help_box h3 {
+		font-size: 18px;
+	}
+}
+

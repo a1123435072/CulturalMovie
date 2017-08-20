@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title>前台页面公用头部</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/style.css"/>
+		<style type="text/css">
+			/*分类展示隐藏*/
+			#filterBtn, #FilterBox {
+				display: none;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="flex-wrap flex-vertical" id="wrap">
+			<!--头部-->
+			<header id="header">
+				<div class="title">
+					<div class="back" tapmode onClick="goBack()"><img src="../image/back.png" alt="">
+					</div>
+					<span id="bannerTitle">关于我们</span><span class="filterBtn" id="filterBtn" onClick="showTimeBox()"></span>
+				</div>
+			</header>
+			<!--最新剧目、新闻资讯分类-->
+			<div class="ticketsFilterBox" id="FilterBox">
+				<ul></ul>
+			</div>
+			<!--最新剧目时间分类-->
+			<dl class="timeDL" id="timeDL">
+				<input type="hidden" id="isDisType" value="0">
+				<dd class="xmjc active" onClick="switchTab(this,'xmjc',0)">
+					全部
+				</dd>
+				<dd class="xmjc" onClick="switchTab(this,'xmjc',1)">
+					明天
+				</dd>
+				<dd class="xmjc" onClick="switchTab(this,'xmjc',2)">
+					本周
+				</dd>
+				<dd class="xmjc" onClick="switchTab(this,'xmjc',3)">
+					其它
+				</dd>
+			</dl>
+			<!--主体部分-->
+			<div class="flex-con" id="main"></div>
+			<!--底部-->
+			<footer class="border-t" id="footer">
+				<ul class="flex-wrap">
+					<li class="flex-con active" tapmode="hover" onClick="loadTab('index')">
+						首页
+					</li>
+					<li class="flex-con reper" tapmode="hover" onClick="loadTab('reper','购票','frm_reperList.html')">
+						购票
+					</li>
+					<li class="flex-con news" tapmode="hover" onClick="loadTab('news','新闻资讯','frm_newsList.html')">
+						云社区
+					</li>
+					<li class="flex-con trade" tapmode="hover" onClick="loadTab('trade','撮合交易','frm_tradeList.html')">
+						撮合
+					</li>
+					<li class="flex-con user" tapmode="hover" onClick="loadTab('user','个人中心','frm_userIndex.html')">
+						我的
+					</li>
+				</ul>
+			</footer>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery.min.js"></script>
+	<script type="text/javascript" src="../script/zepto.min.js"></script>
+	<script type="text/javascript" src="../script/iscroll.js"></script>
+	<script type="text/javascript" src="../script/funcTools.js"></script>
+	<script type="text/javascript">
+		//初始化查询条件
+		var filterEntry = {
+			hylx : '0',
+			xmjc : '0'
+		};
+		apiready = function() {
+			//苹果机器头部样式
+			fixIos7Bar($("header"));
+			api.setStatusBarStyle({
+				style : 'light'
+			});
+			$("#bannerTitle").text(api.pageParam.bannerTitle);
+			$(".flex-con").removeClass("active");
+			$("." + api.pageParam.bannerName).addClass("active");
+			//处于购票、云社区频道时显示其分类菜单
+			if ('reper' == api.pageParam.bannerName) {
+				//加载并显示其分类菜单
+				getType(2);
+				$("#FilterBox").css("display", "block");
+				$("#filterBtn").css("display", "block");
+			} else if ('news' == api.pageParam.bannerName) {
+				//加载并显示其分类菜单
+				getType(1);
+				$("#FilterBox").css("display", "block");
+				$("#FilterBox").addClass("newsFilterBox");
+				//个人中心
+			} else if ('user' == api.pageParam.bannerName) {
+				$("#header").css("display", "none");
+			}
+			//加载数据列表
+			openMenus();
+		}
+		//获取剧目、云社区、撮合交易列表
+		function openMenus() {
+			var body_h = $api.offset($api.dom('body')).h;
+			var header_h = $api.offset($api.dom('header')).h;
+			var footer_h = $api.offset($api.dom('footer')).h;
+			//处于购票、云社区时头部距离
+			if (('reper' == api.pageParam.bannerName) || ('news' == api.pageParam.bannerName)) {
+				var FilterBox_h = $api.offset($api.byId('FilterBox')).h;
+				var isDisType = $("#isDisType").val();
+				//最新剧目时间菜单展开时
+				if (1 == isDisType) {
+					var timeDL_h = $api.offset($api.byId('timeDL')).h;
+					var ret_h = header_h + FilterBox_h + timeDL_h;
+				} else {
+					var ret_h = header_h + FilterBox_h;
+				}
+				//处于个人中心时头部不计算距离
+			} else if ('user' == api.pageParam.bannerName) {
+				var ret_h = 0;
+				//处于撮合交易频道
+			} else {
+				var ret_h = header_h;
+			}
+			var rect_h = body_h - ret_h - footer_h;
+			api.openFrame({
+				name : api.pageParam.bannerName,
+				url : api.pageParam.bannerUrl,
+				rect : {
+					x : 0,
+					y : ret_h,
+					w : 'auto',
+					h : rect_h
+				},
+				pageParam : filterEntry,
+				bounces : false,
+				reload : true
+			});
+		}
+
+		//时间筛选器打开或关闭时间
+		function showTimeBox() {
+			var isDisType = $("#isDisType").val();
+			if (1 == isDisType) {
+				$("#isDisType").val(0);
+				$("#filterBtn").removeClass("filterActive");
+				$("#timeDL").css("display", "none");
+			} else {
+				$("#isDisType").val(1);
+				$("#filterBtn").addClass("filterActive");
+				$("#timeDL").css("display", "block");
+			}
+			//重新加载数据
+			openMenus();
+		}
+
+		//获取剧目、新闻资讯分类
+		function getType(catType) {
+			var getTypeUrl = ajaxAgent.serverAction + '/app/index/infoTypeList';
+			api.ajax({
+				url : getTypeUrl,
+				method : 'get',
+				timeout : 50,
+				dataType : 'json',
+				returnAll : false,
+				data : {
+					values : {
+						catType : catType
+					}
+				}
+			}, function(ret, err) {
+				if (ret.hot_list) {
+					var typeHtml = '<ul><li class="hylx active" onClick="switchTab(this,&quot;hylx&quot;,0)"><span>全部</span></li>';
+					$.each(ret.hot_list, function(i, val) {
+						typeHtml += '<li class="hylx" onClick="switchTab(this,&quot;hylx&quot;,' + val.id + ')"><span>' + val.showName + '</span></li>';
+					});
+					typeHtml += '</ul>';
+					/*
+					 var i = parseInt(ret.hot_list.length);
+					 var FilterBoxWidth = (78.26 * i);
+					 $("#FilterBox").css("width",FilterBoxWidth + 'px');
+					 */
+					$("#FilterBox").html(typeHtml);
+					//获取剧目、新闻分类后调用左右滑动菜单
+					onLoadScroll();
+				}
+			});
+		}
+
+		//加载筛选条件
+		function switchTab(objTab, index, clkLi) {
+			filterEntry[index] = clkLi;
+			$("." + index).removeClass("active");
+			$(objTab).addClass("active");
+			openMenus();
+		}
+
+		//底部切换
+		function loadTab(footTab, footName,footUrl) {
+			if (('index' == footTab)) {
+				api.closeToWin({
+					name : 'main'
+				});
+			} else {
+				api.openWin({
+					name : 'commonMain' + footTab,
+					url : 'win_commonMainTitle.html',
+					pageParam : {
+						bannerName : footTab,
+						bannerTitle : footName,
+						bannerUrl : footUrl
+					},
+					bounces : false,
+					vScrollBarEnabled : false,
+					hScrollBarEnabled : false,
+					reload : true
+				});
+			}
+		}
+
+		//加载分类菜单左右滑动样式
+		function onLoadScroll() {
+			var myScroll;
+			setTimeout(function() {
+				myScroll = new IScroll('#FilterBox', {
+					eventPassthrough : true,
+					scrollX : true,
+					scrollY : false,
+					preventDefault : true
+				});
+			}, 100);
+		}
+	</script>
+</html>

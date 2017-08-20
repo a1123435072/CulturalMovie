@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title>q全部订单</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.css" />
+		<link rel="stylesheet" type="text/css" href="../css/adminStyle.css" />
+		<style>
+			body {
+			}
+		</style>
+	</head>
+	<body>
+		<div id="wrap" class="flex-wrap flex-vertical">
+			<div id="main" class="flex-con main_bg">
+				<div class="orderList" id="list">
+					<!--<a href="" class="item Fix hightitem bg_fff marB10" tapmode onclick="">
+					<div class="cnt">
+					<img class="pic" src="../image/upload/order_pic01.png" >
+					<div class="wrap">
+					<div class="wrap2">
+					<div class="content">
+					<div class="shopname">
+					<h2>京剧《西厢记》9折京剧9折京剧9折京剧9折京剧</h2>
+					<span class="green fr">已付款</span>
+					</div>
+					<div class="comment">
+					<p>订单编号：20161929201619292016</p>
+					</div>
+					<span class="classify">￥120.00</span>
+					<span class="distance">2016-03-31</span>
+					</div>
+					</div>
+					</div>
+					</div>
+					</a>-->
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery.min.js"></script>
+	<script type="text/javascript" src="../script/funcTools.js" ></script>
+	<script type="text/javascript" src="../script/sessions.js"></script>
+	<script type="text/javascript">
+		var page = 1;
+		apiready = function() {
+			getPerform();
+			//头部下拉刷新
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				getPerform();
+				api.refreshHeaderLoadDone();
+			});
+			//底部下拉加载更多
+			api.addEventListener({
+				name : 'scrolltobottom'
+			}, function(ret, err) {
+				page++;
+				getPerform();
+				api.parseTapmode();
+			});
+		}
+		//获取订单列表
+		function getPerform() {
+			var userEntity = sessionAgent.getLoginInfo();
+			var userId = userEntity.userId;
+			var getPerformUrl = ajaxAgent.serverAction + '/app/index/performOrder';
+			api.showProgress();
+			api.ajax({
+				url : getPerformUrl,
+				method : 'post',
+				timeout : 50,
+				dataType : 'json',
+				returnAll : false,
+				data : {
+					values : {
+						userId : userId,
+						orderState : api.pageParam.orderState,
+						currentPage : page,
+						pageSize : 10
+					}
+				}
+			}, function(ret, err) {
+				//成功返回数据
+				if (1 == ret.result) {
+					//没有数据了
+					if ((0 == ret.hot_list.length) && (1 == page)) {
+						$("#list").html('<p style="text-align: center;">暂无数据！</p>');
+						return false;
+						//底部下拉没有更多的数据
+					} else if ((0 == ret.hot_list.length) && (1 != page)) {
+						api.toast({
+							msg : '没有更多数据了！',
+							duration : 2000,
+							location : "middle"
+						});
+						return false;
+						//加载数据
+					} else {
+						var html = '';
+						$.each(ret.hot_list, function(i, val) {
+							html += '<a href="" class="item Fix hightitem bg_fff marB10" tapmode onclick="loadOrderDetail(' + val.id + ')"><div class="cnt"> <img class="pic" src="' + val.showPic + '" /><div class="wrap"><div class="wrap2"><div class="content"><div class="shopname"> <h2>' + val.showTitle + '</h2><span class="green fr">' + val.showState + '</span></div><div class="comment"> <p>订单编号：' + val.showOrderNo + '</p></div><span class="classify">￥' + val.showPrice + '</span><span class="distance">' + val.showDate + '</span></div></div></div></div></a>';
+						});
+						if (1 == page) {
+							$("#list").html(html);
+						} else {
+							$("#list").append(html);
+						}
+					}
+				} else {
+					api.toast({
+						msg : '连接失败！',
+						duration : 2000,
+						location : "middle"
+					});
+					return false;
+				}
+			});
+			api.parseTapmode();
+			api.hideProgress();
+		}
+
+		//跳转到订单详情页
+		function loadOrderDetail(id) {
+			api.openWin({
+				name : 'commonUserOrderDetail' + id,
+				url : 'win_commonUserTitle.html',
+				pageParam : {
+					bannerName : 'orderDetail' + id,
+					bannerTitle : '订单详情',
+					bannerTag : 'orderDetail',
+					bannerUrl : 'frm_userOrderDetail.html',
+					id : id
+				},
+				bounces : false,
+				vScrollBarEnabled : false,
+				hScrollBarEnabled : false,
+				reload : true
+			});
+		}
+	</script>
+</html>

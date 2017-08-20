@@ -1,0 +1,147 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>新闻资讯详情</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/style.css" />
+		<style type="text/css">
+		</style>
+		<link id="nightLink" rel="stylesheet" href="">
+	</head>
+	<body>
+		<div class="wrapBox">
+			<div class="newsContentBox"></div>
+			<div class="sendCommentsBox fixed">
+				<div class="marginLeftRight30">
+					<input type="submit" value="写评论" onClick="showBox()">
+				</div>
+			</div>
+			<!--新闻资讯评论 begin-->
+			<div class="commonInstructionBox commentsBox marginTop20">
+				<h1 class="repertoireTitleH1">评论：<span class="sendCommentsBtn" onClick="showBox()">发短评</span></h1>
+				<ul class="commentsUL"></ul>
+			</div>
+			<!--写评论 start-->
+			<div class="shadowBg">
+				<div class="sendCommentsBox">
+					<div class="marginLeftRight30 flex-wrap writeReviewBox">
+						<span class="cancelBtn flex-con" onClick="hideBox()">取消</span>
+						<span class="writeReview flex-con">写评论</span>
+						<span class="submitBtn flex-con" onClick="setAddSubmit(3)">提交</span>
+					</div>
+					<div class="reviewTextareaBox">
+						<textarea id="reviewContent" class="writeReviewTextarea"></textarea>
+					</div>
+				</div>
+			</div>
+			<!--写评论 end-->
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery.min.js"></script>
+	<script type="text/javascript" src="../script/funcTools.js"></script>
+	<script type="text/javascript" src="../script/sessions.js"></script>
+	<script type="text/javascript" src="../script/user.js"></script>
+	<script type="text/javascript">
+		var page = 1;
+		apiready = function() {
+			setSystem();
+			getNewsDateils();
+			//头部下拉刷新
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				getNewsDateils();
+				api.refreshHeaderLoadDone();
+			});
+			//底部下拉加载更多
+			api.addEventListener({
+				name : 'scrolltobottom'
+			}, function(ret, err) {
+				page++;
+				getReview(3);
+				api.parseTapmode();
+			});
+		}
+		//获取新闻详情
+		function getNewsDateils() {
+			var getNewUrl = ajaxAgent.serverAction + '/app/index/infoDetail';
+			var userEntity = sessionAgent.getLoginInfo();
+			var userId = userEntity.userId;
+			api.showProgress();
+			api.ajax({
+				url : getNewUrl,
+				method : 'get',
+				timeout : 30,
+				dataType : 'json',
+				returnAll : false,
+				data : {
+					values : {
+						infoId : api.pageParam.infoId,
+						userId : userId
+					}
+				}
+			}, function(ret, err) {
+				if (ret.detail) {
+					var val = ret.detail;
+					//用户设置模式(智能无图/正常模式)、字体设置
+					var IsType = setSystem();
+					if ('true' == IsType.IsImgType) {//智能无图模式
+						//var showContent = val.contents.replace("src=\"","");
+						var showContent = val.showContent.replace(/<\s?img[^>]*>/gi, "");
+					} else {//正常模式
+						var showContent = val.showContent;
+					}
+					if ('0' == IsType.fontSize) {//小号字体
+						var detailHtml = '<h1 class="newsContentH1 setTitle0">' + val.showTitle + '</h1><h2 class="newsContentH2 setDsce0"><span>' + val.showDate + '</span><span>' + val.showSource + '</span></h2> <div class="newsContentBox02 setContent0">' + showContent + '</div>';
+					} else if ('2' == IsType.fontSize) {//大号字体
+						var detailHtml = '<h1 class="newsContentH1 setTitle2">' + val.showTitle + '</h1><h2 class="newsContentH2 setDsce2"><span>' + val.showDate + '</span><span>' + val.showSource + '</span></h2> <div class="newsContentBox02 setContent2">' + showContent + '</div>';
+					} else if ('3' == IsType.fontSize) {//特大号字体
+						var detailHtml = '<h1 class="newsContentH1 setTitle3">' + val.showTitle + '</h1><h2 class="newsContentH2 setDsce3"><span>' + val.showDate + '</span><span>' + val.showSource + '</span></h2> <div class="newsContentBox02 setContent3">' + showContent + '</div>';
+					} else {//默认正常字体
+						var detailHtml = '<h1 class="newsContentH1 ">' + val.showTitle + '</h1><h2 class="newsContentH2"><span>' + val.showDate + '</span><span>' + val.showSource + '</span></h2> <div class="newsContentBox02">' + showContent + '</div>';
+					}
+					$(".newsContentBox").html(detailHtml);
+					//获取评论列表
+					getReview(3);
+				}
+			});
+			api.parseTapmode();
+			api.hideProgress();
+		}
+	
+
+		//用户设置夜间模式和智能无图模式
+		function setSystem() {
+			var systemSetting = sessionAgent.getStorage(sessionAgent.keyMap.systemSetKey);
+			if (systemSetting && systemSetting.isNightStyle == 'true') {
+				utilsFuncs.setNightTime('nightLink', 1);
+			} else {
+				utilsFuncs.setNightTime('nightLink', 0);
+			}
+			if (systemSetting && systemSetting.checkImgType == 'true') {
+				var IsImgType = 'true';
+			} else {
+				var IsImgType = 'false';
+			}
+			if (systemSetting && systemSetting.fontSize) {
+				var fontSize = systemSetting.fontSize;
+			} else {
+				var fontSize = '1';
+			}
+			var setSys = {
+				IsImgType : IsImgType,
+				fontSize : fontSize
+			}
+			return setSys;
+		}
+	</script>
+</html>

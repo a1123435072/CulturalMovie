@@ -1,0 +1,159 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title>新闻列表</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/style.css"/>
+		<style>
+		</style>
+	</head>
+	<body>
+		<div id="wrap" class="flex-wrap flex-vertical">
+			<div id="main">
+				<!--云社区 begin-->
+				<div class="repertoireList reviewList">
+					<ul id="list">
+						<li>
+							<img src="../image/upload/order_pic01.png" class="reviewListPic"/>
+							<div class="listWrap">
+								<div class="repertoireTitle">
+									<span class="repertoireName cloudName"><em class="Cloud">[沙龙]</em>京剧《西厢记》9折京剧9折京剧9折京剧</span>
+								</div>
+								<div class="repertoireWidth100 repertoireTime">
+									<img src="../image/clock.png"><span>2016-06-25</span>
+									<div class="reviewNumber"><img src="../image/reviewIcon.png">509
+									</div>
+								</div>
+							</div>
+						</li>
+					</ul>
+				</div>
+				<!--云社区 end-->
+			</div>
+		</div>
+	</body>
+</html>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/jquery.min.js"></script>
+<script type="text/javascript" src="../script/funcTools.js"></script>
+<script type="text/javascript">
+	var page = 1;
+	var pageSize = 10;
+	//每一页加载数量
+	var hot_listtotal = 0;
+	apiready = function() {
+		//alert(api.pageParam.orderState);
+		getPerform();
+		setRefreshHeader();
+		api.addEventListener({
+			name : 'scrolltobottom'
+		}, function(ret, err) {
+			var sumNum = page * pageSize;
+			if (page > 1 && sumNum >= hot_listtotal) {
+				var msg = '暂无数据...';
+				if (hot_listtotal == 0)
+					msg = '暂无数据...';
+				else
+					msg = '已经到底了...';
+				api.toast({
+					msg : msg,
+					duration : 3000,
+					location : "middle"
+				});
+			} else {
+				page++;
+				getPerform();
+				api.parseTapmode();
+			}
+		});
+	}
+	//根据条件查询
+	function getPerform() {
+		var getPerformUrl = ajaxAgent.serverAction + '/app/index/infoList';
+		api.showProgress();
+		api.ajax({
+			url : getPerformUrl,
+			method : 'post',
+			timeout : 50,
+			dataType : 'json',
+			returnAll : false,
+			data : {
+				values : {
+					keyWord : api.pageParam.keyWord,
+					currentPage : page,
+					pageSize : pageSize
+				}
+			}
+		}, function(ret, err) {
+			if (ret) {
+				if (ret.result == 1) {
+					//统计总量
+					if (ret.hot_listtotal)
+						hot_listtotal = ret.hot_listtotal;
+					else
+						hot_listtotal = 0;
+					if (ret.hot_list) {
+						if ((ret.hot_list.length == 0) && (page == 1)) {
+							$("#list").html('<p style="text-align: center;">暂无数据！</p>');
+							return false;
+						} else {
+							var html = '';
+							$.each(ret.hot_list, function(i, val) {
+								html += '            <li onclick="showNew(' + val.id + ',' + val.showReviewNum + ',' + val.isCollect + ')">';
+								html += '              <img src="' + val.showPic + '" class="reviewListPic"/>';
+								html += '                <div class="listWrap">';
+								html += '                    <div class="repertoireTitle">';
+								html += '                        <span class="repertoireName cloudName"><em class="Cloud">[' + val.newsTypeName + ']</em>"' + val.showTitle + '"</span>';
+								html += '                    </div>';
+								html += '                  <div class="repertoireWidth100 repertoireTime">';
+								html += '                    <img src="../image/clock.png"><span>' + val.showDate + '</span><div class="reviewNumber"><img src="../image/reviewIcon.png">' + val.showReviewNum + '</div>';
+								html += '                  </div>';
+								html += '                </div>';
+								html += '            </li>';
+							});
+							if (page == 1) {
+								$("#list").html(html);
+							} else {
+								$("#list").append(html);
+							}
+						}
+					} else {
+						api.toast({
+							msg : "没有数据了...",
+							duration : 5000,
+							location : "middle"
+						});
+					}
+				}//if result==1
+				else {//操作失败
+					api.toast({
+						msg : ret.msg,
+						duration : 5000,
+						location : "middle"
+					});
+				}
+			} else {
+				alert(JSON.stringify(err));
+			}
+		});
+		api.parseTapmode();
+		api.hideProgress();
+	}
+
+	//头部下拉刷新
+	function setRefreshHeader() {
+		api.setRefreshHeaderInfo({
+			visible : true,
+			bgColor : '#ccc',
+			textColor : '#fff',
+			textDown : '下拉刷新...',
+			textUp : '松开刷新...',
+			showTime : true
+		}, function(ret, err) {
+			getPerform();
+			api.refreshHeaderLoadDone();
+		});
+	}
+</script>

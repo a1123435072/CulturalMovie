@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title>搜索</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/style.css" />
+	</head>
+	<body>
+		<div id="wrap">
+			<header id="header">
+				<div class="title searchBar">
+					<div class="back" tapmode onClick="goBack()"><img src="../image/back.png" alt="">
+					</div>
+					<div class="searchWrap" onclick="" tapmode="">
+						<input type="text" placeholder="" id="keyWord" value=""/>
+						<input type="hidden" id="listType" value="1"/>
+						<div class="close" tapmode="" onclick="cleanContent()"></div>
+					</div>
+					<div class="searchBtnTure" tapmode="" onclick="loadSearchResult()">
+						搜索
+					</div>
+				</div>
+			</header>
+			<div id="main">
+				<p class="searchP">
+					可以搜索一下内容
+				</p>
+				<ul class="searchUL flex-wrap">
+					<li class="flex-con active" value="1" onclick="setClass(1)"  id="listType1">
+						<em ><img src="../image/searchIcon01.png"></em>
+						<span>演出</span>
+					</li>
+					<li class="flex-con " value="2" onclick="setClass(2)" id="listType2">
+						<em><img src="../image/searchIcon02.png"></em>
+						<span>新闻</span>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery.min.js" ></script>
+	<script type="text/javascript" src="../script/funcTools.js" ></script>
+	<script type="text/javascript">
+		apiready = function() {
+			var thridHeader = $api.byId('header');
+			$api.fixIos7Bar(header);
+		};
+		//搜索结果页面加载
+		function loadSearchResult() {
+			var listType = $("#listType").val();
+			var keyWord = $("#keyWord").val();
+			if (keyWord == "") {
+				api.toast({
+					msg : "请输入搜索关键字",
+					duration : 2000,
+					location : "top"
+				});
+				return false;
+			}
+			//搜索类型(剧目是1、新闻是2 默认是演出)
+			if (2 == listType) {
+				frmTitle = '搜索新闻';
+				frmName = 'searchNews';
+				frmUrl = 'frm_searchNews.html';
+			} else {
+				frmTitle = '搜索演出';
+				frmName = 'searchNews';
+				frmUrl = 'frm_searchPlays.html';
+			}
+			api.openWin({
+				name : 'commonHomeSearch' + listType,
+				url : 'win_commonHomeTitle.html',
+				pageParam : {
+					bannerName : frmName,
+					bannerTitle : frmTitle,
+					bannerTag : 'search',
+					bannerUrl : frmUrl,
+					keyWord : keyWord
+				},
+				bounces : false,
+				vScrollBarEnabled : false,
+				hScrollBarEnabled : false,
+				delay : 200,
+				reload : true
+			});
+		}
+
+		//设置搜索类型
+		function setClass(listType) {
+			$("#listType" + listType).attr('class', 'flex-con active');
+			$("#listType").val(listType);
+			if (listType == 1)
+				$("#listType2").attr('class', 'flex-con');
+			else
+				$("#listType1").attr('class', 'flex-con');
+		}
+
+		//清空搜索内容
+		function cleanContent() {
+			$("#keyWord").val("");
+		}
+	</script>
+</html>

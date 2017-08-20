@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title>修改资料</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/adminStyle.css"/>
+		<style type="text/css">
+			body {
+			}
+		</style>
+	</head>
+	<body>
+		<div class="modify marB30 bg_fff fontSize24 borderB">
+			<div class="setHei modifyHei  borderB fontColor666" >
+				<em class="portrait fl" onclick="editUserIcon()"><img src="../image/portrait.png"  id="userIcon" ></em>
+				<span class="fl fontColor666">头像</span>
+				<i class="fr set_next"><img src="../image/set_next.png" ></i>
+				<b class="modifyName fr"  id="userNickName"></b>
+			</div>
+			<div class="setHei setBorder fontColor666" onclick="editUserInfo('userNickName','修改昵称','frm_userNickName.html')">
+				<i class="fl nickname"><img src="../image/user-id.png" ></i>
+				<span class="fl">修改昵称</span>
+			</div>
+			<div class="setHei setBorder noborB fontColor666" onclick="editUserInfo('userEditPassWord','修改密码','frm_userEditPassWord.html')">
+				<i class="fl password"><img src="../image/lock.png"  ></i>
+				<span class="fl">修改密码</span>
+			</div>
+		</div>
+		<div class="modify_btn bg_fff borderT borderB">
+			<input type="button" value="退出登录"  onclick="loginOut()"/>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery.min.js"></script>
+	<script type="text/javascript" src="../script/funcTools.js"></script>
+	<script type="text/javascript" src="../script/sessions.js"></script>
+	<script type="text/javascript">
+		apiready = function() {
+			var userEntity = sessionAgent.getLoginInfo();
+			setUserNickName(userEntity.nickName);
+			setUserIcon(userEntity.headImgPath);
+		};
+		//用户修改头像
+		function editUserIcon() {
+			var selImgLocation = '';
+			api.actionSheet({
+				title : '设置头像',
+				cancelTitle : '取消',
+				buttons : ['拍照', '相册']
+			}, function(ret, err) {
+				var clkChoose = ret.buttonIndex;
+				if (clkChoose == '1') {//拍照
+					loadCellImg('camera');
+				} else if (clkChoose == '2') {//相册
+					loadCellImg('album');
+				}
+			});
+		}
+
+		//相册或拍照选择头像
+		function loadCellImg(sourceType) {
+			api.getPicture({
+				sourceType : sourceType,
+				encodingType : 'jpg',
+				mediaValue : 'pic',
+				destinationType : 'url',
+				allowEdit : true,
+				quality : 80,
+				saveToPhotoAlbum : false
+			}, function(ret, err) {
+				if (ret.data) {
+					getComitRs(ret.data);
+				}
+			});
+		}
+
+		//上传选择的头像
+		function getComitRs(selImgLocation) {
+			var userEntity = sessionAgent.getLoginInfo();
+			var userId = userEntity.userId;
+			$("#userIcon").attr('src', selImgLocation);
+			var editCellImgUrl = ajaxAgent.serverAction + '/app/user/editHeadImg';
+			api.showProgress();
+			api.ajax({
+				url : editCellImgUrl,
+				method : 'post',
+				timeout : 30,
+				dataType : 'json',
+				returnAll : false,
+				data : {
+					values : {
+						userId : userId
+					},
+					files : {
+						headImgFile : selImgLocation
+					}
+				}
+			}, function(ret, err) {
+				if (ret.result == 1) {
+					var imgPath = ret.headImgPath;
+					userEntity.headImgPath = imgPath;
+					sessionAgent.setLoginInfo(userEntity);
+					//修改本页面用户头像
+					setUserIcon(imgPath);
+					//修改用户首页头像
+					api.execScript({
+						name : "win_userIndex",
+						frameName : "frm_userIndex",
+						script : "setUserIcon('" + imgPath + "')",
+					});
+					api.toast({
+						msg : '头像保存成功',
+						duration : 2000,
+						location : 'middle'
+					});
+				} else {
+					api.alert({
+						msg : '上传失败,请重试!'
+					})
+				}
+			});
+			api.hideProgress();
+		}
+
+		/**设置
+		 * frmName:frm名称
+		 * barTitle：头部名称
+		 * frmUrl：frm路径
+		 */
+		function editUserInfo(frmName, frmBarTitle, frmUrl) {
+			api.openWin({
+				name : 'commonUser' + frmName,
+				url : 'win_commonUserTitle.html',
+				pageParam : {
+					bannerName : frmName,
+					bannerTitle : frmBarTitle,
+					bannerTag : frmName,
+					bannerUrl : frmUrl
+				},
+				bounces : false,
+				vScrollBarEnabled : false,
+				hScrollBarEnabled : false,
+				reload : true
+			});
+		}
+
+		//退出系统
+		function loginOut() {
+			//清空session
+			sessionAgent.clearLoginInfo();
+			//重置用户资料并关闭当前页面
+			api.execScript({
+				name : 'commonMainuser',
+				frameName : 'user',
+				script : 'setUserInfo()'
+			});
+			api.closeWin();
+			api.openWin({
+				name : 'commonUserlogin',
+				url : 'win_commonUserTitle.html',
+				pageParam : {
+					bannerName : 'userLogin',
+					bannerTitle : '登录',
+					bannerTag : 'userLogin',
+					bannerUrl : 'frm_userLogin.html'
+				},
+				bounces : false,
+				vScrollBarEnabled : false,
+				hScrollBarEnabled : false,
+				reload : true
+			});
+		}
+	</script>
+</html>

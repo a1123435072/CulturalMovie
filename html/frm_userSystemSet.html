@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title>系统设置</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.css" />
+		<link rel="stylesheet" type="text/css" href="../css/adminStyle.css" />
+		<style type="text/css">
+			.updateVersion{
+				display: none;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="wrap" class="flex-wrap flex-vertical">
+			<div id="main" class="flex-con main_bg">
+				<div class="setUp marB20 bg_fff borderB">
+					<div class="setHei setBorder picture">
+						<span class="fl fontColor666">智能无图模式</span>
+						<input id="chkImgType" type="checkbox" class="aui-switch aui-switch-primary aui-pull-right marT" >
+					</div>
+					<div class="setHei setBorder picture">
+						<span class="fl fontColor666">夜间模式</span>
+						<input id="isNightStyle" type="checkbox" class="aui-switch aui-switch-primary aui-pull-right marT">
+					</div>
+					<div class="setHei fonts">
+						<p class="fontColor666">
+							正文字体
+						</p>
+						<ul class="fontsB fontSize22" id="swichLi">
+							<li value="0">
+								小号
+							</li>
+							<li value="1" class="active">
+								正常
+							</li>
+							<li value="2">
+								大号
+							</li>
+							<li value="3" class="nobor">
+								特大
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div class="caching marB20 bg_fff"  onclick="clearCache();">
+					<i class="fl"></i>
+					<span class="fl fontColor666">清理缓存</span>
+					<em class="fr fontColor999" id="curCacheNum">10.98MB</em>
+				</div>
+				<div class="setBottom bg_fff">
+					<div class="setHei setBorder fontColor666" onclick="loadUserMenu('usreFeedback','意见反馈','frm_userOpinion.html')">
+						<span class="fl">用户反馈</span>
+						<i class="fr set_next"><img src="../image/set_next.png" ></i>
+					</div>
+					<div class="setHei setBorder fontColor666 updateVersion" id="updateVersion">
+						<span class="fl">版本更新</span>
+						<em class="fr fontColor999" id="systemVersion">V3.1.2</em>
+					</div>
+					<div class="setHei setBorder fontColor666" onclick="loadUserMenu('userAbout','关于我们','frm_userAbout.html')">
+						<span class="fl">关于我们</span>
+						<i class="fr set_next"><img src="../image/set_next.png" ></i>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery.min.js"></script>
+	<script type="text/javascript" src="../script/funcTools.js"></script>
+	<script type="text/javascript" src="../script/sessions.js"></script>
+	<script type="text/javascript">
+		apiready = function() {
+			getStyle();
+		};
+		function setRefFunc() {
+			api.execScript({
+				name : 'systemSet',
+				script : "setExecFunc(function(){api.sendEvent({name: 'refCurFrame', extra: {}});});"
+			});
+			api.sendEvent({
+				name : 'refSysSetting',
+				extra : {}
+			});
+		}
+
+		//系统设置
+		function getStyle() {
+			var systemSetting = sessionAgent.getStorage(sessionAgent.keyMap.systemSetKey);
+			var swich = $api.domAll("#swichLi li");
+			//获取系统版本
+			$("#systemVersion").text('V' + api.appVersion);
+			if (systemSetting == null || systemSetting == "") {
+				systemSetting = {
+					fontSize : 1,
+					checkImgType : 'false',
+					isNightStyle : 'false'
+				};
+				$api.addCls(swich[1], 'active');
+			}
+			if (systemSetting.checkImgType == 'false') {
+				$api.byId('chkImgType').checked = false;
+			} else if (systemSetting.checkImgType == 'true') {
+				$api.byId('chkImgType').checked = true;
+			}
+			if (systemSetting.isNightStyle == 'true')
+				$api.byId('isNightStyle').checked = true;
+			else if (systemSetting.isNightStyle == 'false')
+				$api.byId('isNightStyle').checked = false;
+			for (var j in swich) {
+				if ($api.attr(swich[j], 'value') == parseInt(systemSetting.fontSize) && $api.attr(swich[j], 'value') != "") {
+					$api.removeCls($api.dom("#swichLi li.active"), 'active');
+					$api.addCls(swich[j], 'active');
+				}
+			}
+			//}
+			//设置字体选择点击事件
+			for (var i in swich) {
+				$api.addEvt(swich[i], 'click', function() {
+					$api.removeCls($api.dom("#swichLi li.active"), 'active');
+					$api.addCls(this, 'active');
+					systemSetting.fontSize = $api.attr(this, 'value');
+					sessionAgent.setStorage(sessionAgent.keyMap.systemSetKey, systemSetting);
+					setRefFunc();
+				});
+			}
+			//设置无图选择事件
+			$api.addEvt($api.byId('chkImgType'), 'click', function() {
+				systemSetting.checkImgType = this.checked + '';
+				sessionAgent.setStorage(sessionAgent.keyMap.systemSetKey, systemSetting);
+				setRefFunc();
+			});
+			//设置夜间模式选择事件
+			$api.addEvt($api.byId('isNightStyle'), 'click', function() {
+				systemSetting.isNightStyle = this.checked + '';
+				sessionAgent.setStorage(sessionAgent.keyMap.systemSetKey, systemSetting);
+				setRefFunc();
+			});
+			//安卓系统显示更新按钮
+			if("android" == api.systemType){
+				$("#updateVersion").css("display", "block");
+			}
+			//清理缓存事件
+			api.getCacheSize(function(ret, err) {
+				cacheSize = (parseInt(ret.size) / 1024) / 1024;
+				cacheSize = cacheSize.toFixed(2);
+				$api.byId("curCacheNum").innerText = cacheSize + ' Mb';
+			});
+		}
+
+		//清除缓存
+		function clearCache() {
+			api.confirm({
+				msg : '确定清除缓存',
+				buttons : ['确定', '取消']
+			}, function(ret, err) {
+				if (ret.buttonIndex == 1) {
+					api.showProgress({
+						model : false
+					});
+					api.clearCache(function(ret, err) {
+						$api.byId("curCacheNum").innerText = '0 MB';
+						api.hideProgress();
+						api.toast({
+							msg : '清除缓存完成',
+							duration : 2000,
+							location : 'middle'
+						});
+					});
+				}
+			});
+		}
+
+		/**设置
+		 * frmName:frm名称
+		 * frmBarTitle：头部名称
+		 * frmUrl：frm路径
+		 */
+		function loadUserMenu(frmName, frmBarTitle, frmUrl) {
+			api.openWin({
+				name : 'commonUser' + frmName,
+				url : 'win_commonUserTitle.html',
+				pageParam : {
+					bannerName : frmName,
+					bannerTitle : frmBarTitle,
+					bannerTag : frmName,
+					bannerUrl : frmUrl
+				},
+				bounces : false,
+				vScrollBarEnabled : false,
+				hScrollBarEnabled : false,
+				reload : true
+			});
+		}
+	</script>
+</html>

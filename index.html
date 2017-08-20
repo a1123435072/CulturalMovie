@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>文化在线</title>
+	<style>
+    	body{
+    		margin: 0 0;
+    		padding: 0 0;
+    	}
+    </style>
+</head>
+<body>
+	<img id="bkImg" style="width:100%;height:100%;" src="launch/launch1080x1920.png" />
+</body>
+<script type="text/javascript" src="./script/api.js"></script>
+<script type="text/javascript" src="./script/jquery.min.js"></script>
+<script type="text/javascript" src="./script/funcTools.js" ></script>
+<script type="text/javascript" src="./script/sessions.js" ></script>
+
+<script type="text/javascript">
+	apiready = function(){
+		//加载开机动画图3秒后自动进入系统
+		setTimeout(function(){
+			api.openSlidLayout({
+				type : 'left',
+				leftEdge : api.winWidth - 240,
+				fixedPane : {
+					name : 'sidebar',
+					url : 'html/win_sidebar.html',
+					bounces : false,
+					vScrollBarEnabled : true,
+					hScrollBarEnabled : false
+				},
+				slidPane : {
+					name : 'main',
+					url : 'html/main.html',
+					bounces : false,
+					vScrollBarEnabled : true,
+					hScrollBarEnabled : false,
+					delay : 100,
+					reload : true
+				}
+			});
+			api.lockSlidPane();
+		},2000);
+    };
+
+	//获取开机图片
+	function getAdImg(){
+		 var adImgEntry= sessionAgent.getStorage(sessionAgent.keyMap.adImgEntry),
+			 actionUrl = ajaxAgent.serverAction + '/app/index/getAdImg';
+		 if(adImgEntry == '' || adImgEntry == null){
+			adImgEntry= {};
+		 }else{
+			$("#bkImg").attr('src',adImgEntry.url);
+		 }
+
+		 if(api.connectionType != 'wifi'){
+			return false;
+		 }
+		 api.ajax({
+			url: actionUrl,
+		    method: 'get',
+		    timeout: 50,
+		    dataType: 'json',
+		    returnAll: false
+		 },function(ret1,err1){
+			if((ret1.imgCode != '') && (ret1.imgCode != adImgEntry.code)){
+				api.download({
+					url: ret1.imgUrl,
+					allowResume: true
+				},function(ret2, err2){
+					if(ret2 && ret2.state==1){
+						adImgEntry.code= ret1.imgCode;
+					    adImgEntry.url= ret2.savePath;
+					    sessionAgent.setStorage(sessionAgent.keyMap.adImgEntry, adImgEntry);
+					}
+				});
+			}	
+		 });
+	}
+
+</script>
+</html>

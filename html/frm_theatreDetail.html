@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>剧院详情</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/style.css" />
+		<style type="text/css">
+		</style>
+	</head>
+	<body>
+		<div class="wrapBox">
+			<!--剧院信息-->
+			<div class="theaterBanner"><img id="theaterBanner" src="../image/upload/pic02.jpg">
+			</div>
+			<div class="commonList"></div>
+			<div class="commonInstructionBox marginTop20">
+				<h1 class="repertoireTitleH1">剧场简介</h1>
+				<div class="commonInstruction">
+					<div class="commonInstructionContent" id="theatContent"></div>
+				</div>
+			</div>
+			<!--剧目列表-->
+			<div class="repertoireList marginTop20">
+				<ul id="reperBox"></ul>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery.min.js"></script>
+	<script type="text/javascript" src="../script/funcTools.js" ></script>
+	<script type="text/javascript" src="../script/sessions.js" ></script>
+	<script type="text/javascript">
+		var page = 1;
+		apiready = function() {
+			getTheatre();
+			//头部下拉刷新
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				getTheatre();
+				api.refreshHeaderLoadDone();
+			});
+			//底部下拉加载更多
+			api.addEventListener({
+				name : 'scrolltobottom'
+			}, function(ret, err) {
+				page++;
+				getReper();
+				api.parseTapmode();
+			});
+		}
+		//获取剧院详情及剧院剧目列表
+		function getTheatre() {
+			var getTheatreUrl = ajaxAgent.serverAction + '/app/index/theatreInfo';
+			api.showProgress();
+			api.ajax({
+				url : getTheatreUrl,
+				method : 'get',
+				timeout : 50,
+				dataType : 'json',
+				returnAll : false,
+				data : {
+					values : {
+						artId : api.pageParam.TheatreId
+					}
+				}
+			}, function(ret, err) {
+				if (ret.detail) {
+					var val = ret.detail;
+					var theatreHtml = '<dl><dd><div class="commonName">剧院名称：</div><div class="commonRight textAlignLeft color666">' + val.showName + '</div></dd><dt></dt><dd><div class="commonName">剧院地址：</div><div class="commonRight repertoireAdress textAlignLeft color666">' + val.showAddress + '</div></dd><dt></dt><dd><div class="commonName">联系方式：</div><div class="commonRight textAlignLeft color666">' + val.showTel + '</div></dd></dl>';
+					$("#theaterBanner").attr('src', val.showPic);
+					$(".commonList").html(theatreHtml);
+					$("#theatContent").html(val.contents);
+					getReper();
+				}
+			});
+			api.parseTapmode();
+			api.hideProgress();
+		}
+
+		//根据剧院Id获取当前剧目列表
+		function getReper() {
+			var userEntity = sessionAgent.getLoginInfo();
+			var userId = userEntity.userId;
+			var getReperUrl = ajaxAgent.serverAction + '/app/index/performList';
+			getReperUrl += '?currentPage=' + page + '&pageSize=10&rdnum=' + Math.random();
+			api.showProgress();
+			api.ajax({
+				url : getReperUrl,
+				method : 'get',
+				timeout : 50,
+				dataType : 'json',
+				returnAll : false,
+				data : {
+					values : {
+						artId : api.pageParam.TheatreId,
+						userId : userId
+					}
+				}
+			}, function(ret, err) {
+				if (ret.hot_list) {
+					if ((0 == ret.hot_list.length ) && (1 == page)) {
+						$("#reperBox").html('<p style="text-align: center;">暂无数据！</p>');
+						return false;
+					} else if ((0 == ret.hot_list.length ) && (1 != page)) {
+						api.toast({
+							msg : '没有更多地数据了',
+							duration : 1000,
+							location : 'middle'
+						});
+						return false;
+					} else {
+						var reperHtml = '';
+						$.each(ret.hot_list, function(i, val) {
+							var click = "showReper(" + val.id + "," + "\'" + val.showTitle + "\'" + "," + "\'" + val.showPic + "\'" + "," + val.isSeatFlag + "," + "\'" + val.isSaleFlag + "\'" + "," + "\'" + val.showAddress + "\'" + "," + val.isCollect + ")";
+							reperHtml += '<li onClick="' + click + '"><img class="repertoireListPic" src="' + val.showPic + '" /><div class="listWrap"><div class="repertoireTitle"><span class="repertoireName">' + val.showTitle + '</span><span class="shopNameIcon">';
+							if (1 != val.isSaleFlag) {
+								reperHtml += '<img src="../image/sale.png">';
+							} else {
+								reperHtml += '';
+							}
+							reperHtml += '</span></div><div class="repertoireWidth100 repertoireTime"><img src="../image/clock.png"><span>' + val.showDate + '</span><p class="repertoireListMoney">￥' + val.minPrice + '起</p></div><div class="repertoireWidth100 theaterBox"><img src="../image/location.png">' + val.showAddress + '</div></div></li>';
+						});
+						if (page == 1) {
+							$("#reperBox").html(reperHtml);
+						} else {
+							$("#reperBox").append(reperHtml);
+						}
+					}
+				}
+			});
+			api.parseTapmode();
+			api.hideProgress();
+		}
+	</script>
+</html>

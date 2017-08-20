@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title>个人中心-首页</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/adminStyle.css"/>
+		<style type="text/css">
+			body {
+			}
+		</style>
+	</head>
+	<body>
+		<div id="wrap" class="flex-wrap flex-vertical">
+			<div id="main" class="flex-con main_bg">
+				<div class="user_top marB20">
+					<div class="userT">
+						<div class="back" tapmode onclick="goBack()" ><img src="../image/back.png" alt="">
+						</div>
+						<div class="title" id="userNickName"></div>
+					</div>
+					<div class="userB" >
+						<img src="../image/portrait.png"  id="userIcon" onclick="toSetting('userSet','修改资料','frm_userSet.html')">
+						<p id="userPoints">
+							积分：1000
+						</p>
+					</div>
+					<div class="user_set" onclick="toSetting('userSet','修改资料','frm_userSet.html')"><img src="../image/cog.png" >
+					</div>
+				</div>
+				<div class="allOrder marB20 bg_fff fontSize24 borderB borderT">
+					<div class="setHei setBorder fontColor666">
+						<h2 class="fl fontColor666">全部订单</h2>
+						<i class="fr set_next"><img src="../image/set_next.png" ></i>
+						<b class="modifyName see fr"><a  onclick="showOrderList(0,'全部订单')">查看全部订单</a></b>
+					</div>
+					<dl class="order_top">
+						<dt class="borderR" onclick="showOrderList(1,'已买到订单')">
+							<span><img src="../image/wallet.png" ></span>
+							<p>
+								已买到
+							</p>
+						</dt>
+						<dd  onclick="showOrderList(2,'待付款订单')">
+							<span><img src="../image/cards.png" ></span>
+							<p>
+								待付款
+							</p>
+						</dd>
+					</dl>
+				</div>
+				<div class="user_con marB20 bg_fff fontSize24 borderT">
+					<ul class="borderB">
+						<li onclick="showMyWallet()">
+							<span><img src="../image/user_wallet.png"></span>
+							<p>
+								我的钱包
+							</p>
+						</li>
+						<li onclick="toSetting('userRecharge','我要充值','frm_userRecharge.html')">
+							<span><img src="../image/user_recharge.png"></span>
+							<p>
+								我要充值
+							</p>
+						</li>
+						<li onclick="showMyDataList(1,'我的收藏',1)">
+							<span><img src="../image/user_collection.png"></span>
+							<p>
+								我的收藏
+							</p>
+						</li>
+					</ul>
+					<ul class="borderB">
+						<li onclick="showMyDataList(2,'我的消息',1)">
+							<span><img src="../image/newspaper.png" ></span>
+							<p>
+								我的消息
+							</p>
+						</li>
+						<li onclick="loadSystem('userSystemSet','系统设置','frm_userSystemSet.html')">
+							<span><img src="../image/tools.png" ></span>
+							<p>
+								系统设置
+							</p>
+						</li>
+						<li onclick="loadSystem('userHelp','帮助中心','frm_userHelp.html')">
+							<span cl><img src="../image/user_help.png" ></span>
+							<p>
+								帮助中心
+							</p>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery.min.js"></script>
+	<script type="text/javascript" src="../script/funcTools.js"></script>
+	<script type="text/javascript" src="../script/sessions.js"></script>
+	<script type="text/javascript">
+		apiready = function() {
+			setUserInfo();
+		};
+		//设置用户信息(登录或退出均重置)
+		function setUserInfo() {
+			var userEntity = sessionAgent.getLoginInfo();
+			var userNickName = userEntity.nickName;
+			var userPoints = userEntity.userPoints;
+			if (userNickName == null || userNickName == "")
+				userNickName = '个人中心';
+			setUserNickName(userNickName);
+			var userIcon = userEntity.headImgPath;
+			if (userIcon == null || userIcon == "") {
+				userIcon = '../image/portrait.png';
+				var userPoints = '0';
+			}
+			setUserIcon(userIcon, userPoints);
+		}
+
+		/**
+		 *订单列表
+		 * orderState:状态，0：所有订单，1：已支付的订单，2：待付款的订单
+		 * frmBarTitle 头部
+		 */
+		function showOrderList(orderState, frmBarTitle) {
+			if (sessionAgent.isLogin()) {//如果已经是登录状态
+				api.openWin({
+					name : 'commonUserOrderState' + orderState,
+					url : 'win_commonUserTitle.html',
+					pageParam : {
+						bannerName : 'orderState' + orderState,
+						bannerTitle : frmBarTitle,
+						bannerTag : 'orderState',
+						bannerUrl : 'frm_userOrderList.html',
+						orderState : orderState
+					},
+					bounces : false,
+					vScrollBarEnabled : false,
+					hScrollBarEnabled : false,
+					reload : true
+				});
+			}
+		}
+
+		/**
+		 *我的收藏、我的消息
+		 * barType :1：我的收藏，2：我的消息
+		 * barTitle 头部名称
+		 * dataType ：数据来源类型，1：剧目，2：资讯
+		 */
+		function showMyDataList(barType, barTitle, dataType) {
+			if (sessionAgent.isLogin()) {//如果已经是登录状态
+				//我的消息
+				if (2 == barType) {
+					var frmName = 'myMessge';
+					//我的收藏
+				} else {
+					var frmName = 'myCollect';
+				}
+				api.openWin({
+					name : 'commonUser' + frmName,
+					url : 'win_commonUserTitle.html',
+					pageParam : {
+						bannerName : frmName,
+						bannerTitle : barTitle,
+						bannerUrl : 'frm_userPlaysList.html',
+						bannerTag : frmName,
+						barType : barType,
+						dataType : dataType
+					},
+					bounces : false,
+					vScrollBarEnabled : false,
+					hScrollBarEnabled : false,
+					delay : 200,
+					reload : true
+				});
+			}
+		}
+
+		/**
+		 * 我的钱包
+		 */
+		function showMyWallet() {
+			if (sessionAgent.isLogin()) {//如果已经是登录状态
+				api.openWin({
+					name : 'commonUserWallet',
+					url : 'win_commonUserTitle.html',
+					pageParam : {
+						bannerName : 'userWallet',
+						bannerTitle : '我的钱包',
+						bannerTag : 'userWallet',
+						bannerUrl : 'frm_userWalletList.html'
+					},
+					bounces : false,
+					vScrollBarEnabled : false,
+					hScrollBarEnabled : false,
+					reload : true
+				});
+			}
+		}
+
+		/**设置
+		 * frmName:frm名称
+		 * barTitle：头部名称
+		 * frmUrl：frm路径
+		 */
+		function toSetting(frmName, frmBarTitle, frmUrl) {
+			if (sessionAgent.isLogin()) {//如果已经是登录状态
+				api.openWin({
+					name : 'commonUser' + frmName,
+					url : 'win_commonUserTitle.html',
+					pageParam : {
+						bannerName : frmName,
+						bannerTitle : frmBarTitle,
+						bannerTag : frmName,
+						bannerUrl : frmUrl
+					},
+					bounces : false,
+					vScrollBarEnabled : false,
+					hScrollBarEnabled : false,
+					reload : true
+				});
+			}
+		}
+
+		/**系统设置和帮助不需要登录设置
+		 * frmName:frm名称
+		 * barTitle：头部名称
+		 * frmUrl：frm路径
+		 */
+		function loadSystem(frmName, frmBarTitle, frmUrl) {
+			api.openWin({
+				name : 'commonUser' + frmName,
+				url : 'win_commonUserTitle.html',
+				pageParam : {
+					bannerName : frmName,
+					bannerTitle : frmBarTitle,
+					bannerTag : frmName,
+					bannerUrl : frmUrl
+				},
+				bounces : false,
+				vScrollBarEnabled : false,
+				hScrollBarEnabled : false,
+				reload : true
+			});
+		}
+	</script>
+</html>

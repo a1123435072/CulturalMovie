@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title>我要充值</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.css" />
+		<link rel="stylesheet" type="text/css" href="../css/adminStyle.css" />
+		<style type="text/css">
+			body {
+			}
+		</style>
+	</head>
+	<body>
+		<div id="wrap" class="flex-wrap flex-vertical">
+			<div id="main" class="flex-con main_bg">
+				<div class="recharge_balance bg_fff borderB">
+					<div class="setHei modifyHei  borderB fontColor666">
+						<span class="fl fontColor666">账户余额：</span>
+						<em class="fr green" id="usableMoney">￥0.00</em>
+						<input  type="hidden" name="myUsableMoney" id="myUsableMoney"  value="0"/>
+					</div>
+					<div class="setHei modifyHei fontColor666">
+						<span class="fl fontColor666">余额充值：</span>
+						<input  class="fl text border" type="text" name="payMount" id="payMount"  value=""/>
+						<span class="fl fontColor666">元</span>
+					</div>
+				</div>
+				<div class="recharge_payment marB30">
+					<h4>支付方式</h4>
+					<div class="payment_con bg_fff borderB">
+						<div class="setHei modifyHei borderB fontColor666" onclick="setPayType(1)">
+							<i class="fl alipay"><img src="../image/Alipay.png" ></i>
+							<em class="fl">支付宝支付</em>
+							<input type="radio" class="pay_checkbox aui-checkbox aui-checkbox-primary  aui-pull-right" name="payTypeRadio" checked>
+						</div>
+						<!-- <div class="setHei modifyHei borderB fontColor666">
+						<i class="fl unionPay"><img src="../image/UnionPay.png" ></i>
+						<em class="fl">银联支付</em>
+						<input type="radio" class="pay_checkbox aui-checkbox aui-checkbox-primary aui-pull-right" name="demo">
+						</div>-->
+						<div class="setHei modifyHei fontColor666" onclick="setPayType(5)">
+							<i class="fl weixin"><img src="../image/weixin.png" ></i>
+							<em class="fl">微信支付</em>
+							<input type="radio" class="pay_checkbox aui-checkbox aui-checkbox-primary aui-pull-right" name="payTypeRadio">
+						</div>
+					</div>
+				</div>
+				<div class="paymen_btn">
+					<input type="hidden" value=""  id="orderNum"/>
+					<input type="button" value="我要充值"  onclick="NowPay()"/>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery.min.js"></script>
+	<script type="text/javascript" src="../script/funcTools.js"></script>
+	<script type="text/javascript" src="../script/sessions.js"></script>
+	<script type="text/javascript">
+		apiready = function() {
+			getUserInfoMount();
+			setPayType(1);
+		}
+		//获取用户账户信息
+		function getUserInfoMount() {
+			var userEntity = sessionAgent.getLoginInfo();
+			var userId = userEntity.userId;
+			var userInfoUrl = ajaxAgent.serverAction + '/app/account/balance';
+			api.ajax({
+				async : false,
+				url : userInfoUrl,
+				method : 'post',
+				timeout : 50,
+				dataType : 'json',
+				returnAll : false,
+				data : {
+					values : {
+						userId : userId
+					}
+				}
+			}, function(ret, err) {
+				if (ret) {
+					if (ret.result == 1) {
+						$("#myUsableMoney").val(ret.usableMoney);
+						$("#usableMoney").html('￥' + ret.usableMoney);
+					} else {
+						api.toast({
+							msg : ret.msg,
+							duration : 2000,
+							location : "middle"
+						});
+					}
+				} else {
+					alert(JSON.stringify(err));
+				}
+			});
+		}
+
+		function NowPay() {
+			var amount = $("#payMount").val();
+			var t = /^\d+(\.\d+)?$/;
+			if (!t.test(amount) || amount == null || amount == '') {
+				api.toast({
+					msg : '请输入正确的金额',
+					duration : 1000,
+					location : 'middle'
+				});
+				return false;
+			}
+			var payType = $api.getStorage('PayType');
+			getOrderNO(amount, payType);
+		}
+
+		//获取订单号
+		function getOrderNO(price, payType) {
+			var userEntity = sessionAgent.getLoginInfo();
+			//获取之前支付失败的订单号
+			var orderNum = $("#orderNum").val();
+			var getPerformUrl = ajaxAgent.serverAction + '/app/index/createCzOrder';
+			/**
+			 api.showProgress({
+			 title : '处理中...',
+			 modal : false
+			 });
+			 **/
+			api.ajax({
+				url : getPerformUrl,
+				method : 'post',
+				timeout : 50,
+				dataType : 'json',
+				returnAll : false,
+				data : {
+					values : {
+						jsonOrder : {
+							userId : userEntity.userId,
+							price : price,
+							payType : payType,
+							orderNum : orderNum
+						}
+					}
+				}
+			}, function(ret, err) {
+				if (ret) {
+					//alert(JSON.stringify(ret));  //orderNum
+					if (ret.result == 1 && ret.orderNum != '') {
+						if (payType == 1) {
+							payByAliPay(ret.orderNum, price, '充值');
+						} else if (payType == 5) {
+							payByWeixin(ret.orderNum, price, '充值');
+						} else {
+							alert("请选择支付方式");
+							return false;
+						}
+					} else
+						return false;
+				} else
+					return false;
+			});
+		}
+
+		//设置支付方式
+		function setPayType(payType) {
+			$api.setStorage('PayType', payType);
+		}
+	</script>
+</html>

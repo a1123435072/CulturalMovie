@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title>意见反馈</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/adminStyle.css" />
+		<style type="text/css">
+			body {
+			}
+		</style>
+	</head>
+	<body>
+		<div id="wrap" class="flex-wrap flex-vertical">
+			<div id="main" class="flex-con main_bg">
+				<div class="feedback_box">
+					<div class="Feedback_text bg_fff border marB20">
+						<textarea class="" name="" cols="" rows="" placeholder="请输入您的意见或建议，我们将在第一时间给您反馈"   id="commentTxt"  onkeypress="showKeyPress()"></textarea>
+					</div>
+					<div class="Feedback_name bg_fff border marB20">
+						<input class="fontColor999" type="text"  placeholder="您的姓名"  value="" id="userName" >
+					</div>
+					<div class="Feedback_name bg_fff border marB30">
+						<input class="fontColor999" type="text" placeholder="您的电话" value="" id="cellNum"  >
+					</div>
+					<div class="Feedback_btn">
+						<input type="button" value="提交反馈" onclick="toComit();">
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery.min.js"></script>
+	<script type="text/javascript" src="../script/funcTools.js"></script>
+	<script type="text/javascript" src="../script/sessions.js"></script>
+	<script type="text/javascript">
+		//系统初始化
+		apiready = function() {
+			initDeviceInfo();
+		}
+		//意见反馈提交
+		function toComit() {
+			var userEntity = sessionAgent.getLoginInfo();
+			var userId = 0;
+			if (userEntity.userId && userEntity.userId > 0)
+				userId = userEntity.userId;
+			var commentTxt = $("#commentTxt").val();
+			var cellNum = $("#cellNum").val();
+			var userName = $("#userName").val();
+			if ("" == commentTxt || null == commentTxt || commentTxt.length > 50) {
+				api.toast({
+					msg : '请填写不能超过50个字符的反馈意见',
+					duration : 1000,
+					location : 'middle'
+				});
+				return false;
+			}
+			if ("" == cellNum || null == cellNum) {
+				api.toast({
+					msg : '请填写手机号',
+					duration : 1000,
+					location : 'middle'
+				});
+				return;
+			} else if (!validFuncs.checkCellPhone(cellNum)) {
+				return false;
+			}
+			api.showProgress({
+				title : '处理中...',
+				modal : false
+			});
+			var actionUrl = ajaxAgent.serverAction + '/app/userFeedback/add';
+			api.ajax({
+				url : actionUrl,
+				method : 'post',
+				timeout : 30,
+				dataType : 'json',
+				returnAll : false,
+				data : {
+					values : {
+						m : 'content',
+						c : 'wap',
+						a : 'retadvice',
+						content : commentTxt,
+						userName : userName,
+						phone : cellNum,
+						userId : userId
+					}
+				}
+			}, function(ret, err) {
+				if (ret) {
+					//alert(JSON.stringify(ret));
+					api.hideProgress();
+					if ('1' == ret.result) {
+						api.alert({
+							msg : '提交成功'
+						});
+						api.closeWin();
+					} else {
+						api.alert({
+							msg : ret.resultType
+						});
+					}
+				} else {
+					utilsFuncs.toastNetErr();
+				}
+			});
+		}
+
+		function initDeviceInfo() {
+			var deviceTypeObj = $("#deviceType");
+			var osVersionObj = $("#osVersion");
+			//		var jiupaiVersionObj= $("#jiupaiVersion");
+			var netTypeObj = $("#netType");
+			deviceTypeObj.text(deviceTypeObj.text() + api.systemType);
+			osVersionObj.text(osVersionObj.text() + api.systemVersion);
+			//		jiupaiVersionObj.text(jiupaiVersionObj.text()+ api.appVersion);
+			netTypeObj.text(netTypeObj.text() + api.connectionType);
+		}
+
+		//过滤输入特殊字符
+		function showKeyPress(evt) {
+			evt = (evt) ? evt : window.event
+			return checkSpecificKey(evt.keyCode);
+		}
+
+		function checkSpecificKey(keyCode) {
+			var specialKey = "#$%\^*\'\"\+";
+			//Specific Key list
+			var realkey = String.fromCharCode(keyCode);
+			var flg = false;
+			flg = (specialKey.indexOf(realkey) >= 0);
+			if (flg) {
+				alert('请勿输入特殊字符: ' + realkey);
+				return false;
+			}
+			return true;
+		}
+
+
+		document.onkeypress = showKeyPress;
+	</script>
+</html>

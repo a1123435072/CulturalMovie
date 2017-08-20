@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>剧目详情</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/style.css" />
+		<style type="text/css">
+		</style>
+	</head>
+	<body>
+		<div class="wrapBox">
+			<div class="repertoirePicBox">
+				<img class="blurryBg" src="../image/upload/video_1458888799337.jpg"/>
+				<div class="repertoireContent">
+					<!--剧目信息-->
+					<div class="repertoireBasic"></div>
+				</div>
+			</div>
+			<!--剧院信息 begin-->
+			<div class="commonList"></div>
+			<!--剧目简介 begin-->
+			<div class="commonInstructionBox marginTop20">
+				<h1 class="repertoireTitleH1">剧目简介</h1>
+				<div class="commonInstruction">
+					<div class="commonInstructionContent reperContent"></div>
+				</div>
+			</div>
+			<!--剧目评论 begin-->
+			<div class="commonInstructionBox commentsBox marginTop20">
+				<h1 class="repertoireTitleH1">评论：<span class="sendCommentsBtn" onClick="showBox()">发短评</span></h1>
+				<ul class="commentsUL"></ul>
+			</div>
+			<!--写评论 start-->
+			<div class="shadowBg">
+				<div class="sendCommentsBox">
+					<div class="marginLeftRight30 flex-wrap writeReviewBox">
+						<span class="cancelBtn flex-con" onClick="hideBox()">取消</span>
+						<span class="writeReview flex-con">写评论</span>
+						<span class="submitBtn flex-con" onClick="setAddSubmit(10)">提交</span>
+					</div>
+					<div class="reviewTextareaBox">
+						<textarea id="reviewContent" class="writeReviewTextarea"></textarea>
+					</div>
+				</div>
+			</div>
+			<!--写评论 end-->
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery.min.js"></script>
+	<script type="text/javascript" src="../script/funcTools.js" ></script>
+	<script type="text/javascript" src="../script/sessions.js" ></script>
+	<script type="text/javascript">
+		var page = 1;
+		apiready = function() {
+			getReperDetail();
+			//头部下拉刷新
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				getReperDetail();
+				api.refreshHeaderLoadDone();
+			});
+			//底部下拉加载更多
+			api.addEventListener({
+				name : 'scrolltobottom'
+			}, function(ret, err) {
+				page++;
+				getReview(10);
+				api.parseTapmode();
+			});
+		}
+		//根据剧目Id获取剧目详情
+		function getReperDetail() {
+			var getPerformUrl = ajaxAgent.serverAction + '/app/index/performInfo';
+			api.showProgress();
+			api.ajax({
+				url : getPerformUrl,
+				method : 'get',
+				timeout : 50,
+				dataType : 'json',
+				returnAll : false,
+				data : {
+					values : {
+						Id : api.pageParam.reperId
+					}
+				}
+			}, function(ret, err) {
+				if (ret.detail) {
+					var val = ret.detail;
+					var detailHtml1 = '<img src="' + val.showPic + '" class="repertoirePic"/><div class="repertoireBasicRight"><div class="rightWrap"><div class="rightContent"><h1 class="repertoireRightTitle">' + val.showTitle + '</h1><div><img src="../image/clock.png" class="clock"/><span>' + val.showDate + '</span></div><div><img src="../image/location02.png" class="location"/><span>' + val.showAddress + '</span></div><div><img src="../image/tags.png" class="tags"/><span>' + val.minPrice + '元起</span></div></div></div></div>';
+					var detailHtml2 = '<dl><dd><div class="commonName">剧院名称：</div><div class="commonRight textAlignLeft color666">' + val.showName + '</div></dd><dt></dt><dd><div class="commonName">剧院地址：</div><div class="commonRight repertoireAdress textAlignLeft color666">' + val.showAddress + '</div></dd><dt></dt><dd> <div class="commonName">联系方式：</div><div class="commonRight textAlignLeft color666">' + val.showTel + '</div></dd></dl>';
+					$(".blurryBg").attr('src', val.showPic);
+					$(".repertoireBasic").html(detailHtml1);
+					$(".commonList").html(detailHtml2);
+					$(".reperContent").html(val.contents);
+					
+					getReview(10);
+				}
+			});
+			api.parseTapmode();
+			api.hideProgress();
+		}
+
+	</script>
+</html>

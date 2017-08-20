@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title>个人中心公用头部</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.css" />
+		<link rel="stylesheet" type="text/css" href="../css/adminStyle.css" />
+		<style type="text/css">
+			.walletBox, .orderBox, .collectBox {
+				display: none;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="wrap" class="flex-wrap flex-vertical">
+			<!--头部-->
+			<header id="header">
+				<div class="title">
+					<div class="back" tapmode onClick="goBack()"><img src="../image/back.png" alt="">
+					</div>
+					<span id="bannerTitle">全部订单</span>
+				</div>
+			</header>
+			<!--头部结束-->
+			<div class="flex-con main_bg" id="main">
+				<!--我的订单-->
+				<div class="orderBox" id="orderBox">
+					<div class="aui-tab aui-tab-dark" id="stateDiv">
+						<ul class="tabNav borderB" id="stateList">
+							<li class="orderTab" id="state0" onclick="updateState(0)">
+								全部
+							</li>
+							<li class="orderTab" id="state1" onclick="updateState(1)">
+								已买到
+							</li>
+							<li class="orderTab" id="state2" onclick="updateState(2)">
+								待付款
+							</li>
+						</ul>
+					</div>
+				</div>
+				<!--我的钱包应用-->
+				<div class="walletBox" id="walletBox">
+					<div class="wallet_top" id="yeDiv" >
+						<div class="wallet_balance">
+							<span>账户余额</span>
+							<p id="yeMoney">
+								￥0.00
+							</p>
+						</div>
+					</div>
+					<dl class="wallet_con bg_fff marB20" id="xfDiv">
+						<dt class="borderR">
+							<span id="xfMoney">￥0.00</span>
+							<p>
+								已消费
+							</p>
+						</dt>
+						<dd>
+							<span id="czMoney">￥0.00</span>
+							<p>
+								已充值
+							</p>
+						</dd>
+					</dl>
+				</div>
+				<!--我的收藏、消息-->
+				<div class="collectBox" id="collectBox">
+					<div class="aui-tab aui-tab-dark" id="tabDiv">
+						<ul class="tabNav borderB" id="">
+							<li class="collectTab" id='li1' onclick="setType(1)">
+								剧目
+							</li>
+							<li class="collectTab" id='li2' onclick="setType(2)">
+								资讯
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery.min.js"></script>
+	<script type="text/javascript" src="../script/zepto.min.js"></script>
+	<script type="text/javascript" src="../script/funcTools.js"></script>
+	<script type="text/javascript" src="../script/sessions.js"></script>
+	<script type="text/javascript">
+		apiready = function() {
+			fixIos7Bar($("header"));
+			api.setStatusBarStyle({
+				style : 'light'
+			});
+			$("#bannerTitle").text(api.pageParam.bannerTitle);
+			//我的收藏、评论显示收藏和评论菜单
+			if (("myCollect" == api.pageParam.bannerTag) || ("myMessge" == api.pageParam.bannerTag)) {
+				$(".collectBox").css("display", "block");
+				$("#li" + api.pageParam.dataType).addClass("active");
+				//我的订单显示订单菜单
+			} else if ("orderState" == api.pageParam.bannerTag) {
+				$(".orderBox").css("display", "block");
+				$("#state" + api.pageParam.orderState).addClass("active");
+				//我的钱包显示钱包菜单
+			} else if ("userWallet" == api.pageParam.bannerTag) {
+				$(".walletBox").css("display", "block");
+			}
+			openMenus();
+		}
+		//获取收藏、消息、订单等列表
+		function openMenus() {
+			var body_h = $api.offset($api.dom('body')).h;
+			var header_h = $api.offset($api.dom('header')).h;
+			//我的收藏、我的消息头部距离
+			if (("myCollect" == api.pageParam.bannerTag) || ("myMessge" == api.pageParam.bannerTag)) {
+				var collectBox_h = $api.offset($api.byId('collectBox')).h;
+				var rect_h = header_h + collectBox_h;
+				//我的订单头部距离
+			} else if ("orderState" == api.pageParam.bannerTag) {
+				var orderBox_h = $api.offset($api.byId('orderBox')).h;
+				var rect_h = header_h + orderBox_h;
+				//我的钱包头部距离
+			} else if ("userWallet" == api.pageParam.bannerTag) {
+				var walletBox_h = $api.offset($api.byId('walletBox')).h;
+				var rect_h = header_h + walletBox_h;
+			} else {
+				var rect_h = header_h;
+			}
+			api.openFrame({
+				name : api.pageParam.bannerName,
+				url : api.pageParam.bannerUrl,
+				rect : {
+					x : 0,
+					y : rect_h,
+					w : 'auto',
+					h : 'auto'
+				},
+				pageParam : api.pageParam,
+				bounces : false,
+				reload : true
+			});
+		}
+
+		//订单菜单切换
+		function updateState(orderState) {
+			if (1 == orderState) {//已支付订单
+				frmTitle = '已支付订单';
+			} else if (2 == orderState) {//待付款订单
+				frmTitle = '待付款订单';
+			} else {//全部订单
+				frmTitle = '全部订单';
+			}
+			$("#bannerTitle").text(frmTitle);
+			$(".orderTab").removeClass("active");
+			$("#state" + orderState).addClass("active");
+			api.pageParam.bannerName = 'orderState' + orderState;
+			//api.pageParam.bannerTag = 'orderState';
+			//api.pageParam.bannerUrl = 'frm_userOrderList.html';
+			api.pageParam.orderState = orderState;
+			openMenus();
+		}
+
+		//我的收藏、消息菜单切换
+		function setType(collectType) {
+			//新闻资讯列表
+			if (2 == collectType) {
+				frmUrl = 'frm_userNewsList.html';
+				//剧目列表
+			} else {
+				frmUrl = 'frm_userPlaysList.html';
+			}
+			$(".collectTab").removeClass("active");
+			$("#li" + collectType).addClass("active");
+			api.pageParam.bannerName = api.pageParam.bannerName + collectType;
+			api.pageParam.bannerUrl = frmUrl;
+			api.pageParam.dataType = collectType;
+			openMenus();
+		}
+	</script>
+</html>

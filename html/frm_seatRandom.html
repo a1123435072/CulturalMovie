@@ -1,0 +1,415 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>购票随机选座</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/style.css" />
+		<style type="text/css">
+			body {
+				background: #fff;
+			}
+			.darktitle {
+				width: 100%;
+				height: 40px;
+				line-height: 40px;
+				font-size: 16px;
+				background: #efefef;
+				color: #666;
+				text-indent: 10px;
+				margin-bottom: 15px;
+			}
+			.timeBox {
+				position: relative;
+				width: 100%;
+				margin: 0 auto;
+				z-index: 400;
+				overflow-y: hidden;
+				overflow-x: visible;
+				background: #fff;
+			}
+			.timeBox .row {
+				width: 400%;
+			}
+			.timeBox .row .col {
+				height: 35px;
+				line-height: 35px;
+				display: inline-block;
+				float: left;
+				width: 10.5%;
+				margin: 10px 0.75%;
+				position: relative;
+				overflow: hidden;
+				z-index: 10;
+				border: 2px solid #ddd;
+				border-radius: 10px;
+				color: #333;
+				-moz-border-radius: 10px;
+				-webkit-border-radius: 10px;
+				text-align: center;
+				font-size: 16px;
+			}
+			.SeatResult .SeatPew {
+				height: 35px;
+				line-height: 35px;
+				width: 90px;
+				position: relative;
+				display: inline-block;
+				border: 1px solid #ddd;
+				text-align: center;
+				margin: 0px 6px 15px 3px;
+				font-size: 14px;
+				color: #666;
+				border-radius: 10px;
+				-moz-border-radius: 10px;
+				-webkit-border-radius: 10px;
+			}
+			.timeBox .row .active, .SeatResult .active {
+				border: 2px solid #ffc600;
+			}
+			.SeatResult .disabled {
+				background-color: #efefef;
+				border: 1px solid #ddd;
+			}
+			.priceClearing {
+				padding: 5px 20px 5px;
+				height: 32px;
+				line-height: 32px;
+				color: #666;
+				float: right;
+			}
+			.priceClearing b {
+				color: #fc9039;
+				margin-right: 5px;
+				font-style: normal;
+			}
+			.item i {
+				width: 90px;
+				float: left;
+				display: inline-block;
+				font-size: 16px;
+			}
+			.choice {
+				float: left;
+			}
+			.choice_c {
+				border-left: 1px solid #ddd;
+				height: 32px;
+				margin: 0;
+			}
+			.choiceBtn {
+				width: 30px;
+				height: 32px;
+				line-height: 28px;
+				text-align: center;
+				background-color: #f0f0f0;
+				border: 1px solid #ddd;
+				border-left: 0;
+				float: left;
+				cursor: pointer;
+			}
+			.choiceInput {
+				width: 45px;
+				height: 30px;
+				line-height: 28px;
+				text-align: center;
+				border: 1px solid #ddd;
+				border-left: 0;
+				display: inline-block;
+				float: left;
+			}
+			.border-t .box_bottom {
+				display: block;
+				margin: 0 auto;
+				width: 100%;
+				height: 55px;
+				background-color: #e23839;
+				color: #fff;
+				font-size: 1.4em;
+				text-align: center;
+				line-height: 55px;
+			}
+			.seatPicBox {
+				width: 100%;
+				display: block;
+				float: left;
+				padding-bottom: 80px;
+				background: #fff;
+			}
+			.seatPic {
+				display: block;
+			}
+			.seatPic img {
+				width: 100%;
+			}
+			#wrap {
+				position: relative;
+			}
+			#wrap header {
+				position: fixed;
+				top: 0;
+				width: 100%;
+				z-index: 10;
+			}
+			#wrap #main {
+				margin-top: 57px;
+				padding-bottom: 100px;
+			}
+			#footer {
+				position: fixed;
+				bottom: 0;
+				width: 100%;
+			}
+			.seatPic {
+			}
+		</style>
+	</head>
+	<body>
+		<div class="flex-wrap flex-vertical" id="wrap">
+			<div class="flex-con">
+				<!--选择时间场次-->
+				<div class="TimeSelection">
+					<div class="darktitle">
+						选择时间场次
+					</div>
+					<div class="timeBox">
+						<div class="row" id="timelist"></div>
+					</div>
+				</div>
+				<!--选择价格-->
+				<div class="SeatSelection">
+					<div class="darktitle">
+						选择价格
+					</div>
+					<div class="SeatResult" id="pricelist"></div>
+				</div>
+				<!--选择数量-->
+				<div class="item">
+					<div class="darktitle">
+						选票数量
+					</div>
+					<div class="choice">
+						<p class="choice_c">
+							<input id="min" name="" type="button" value="-" class="choiceBtn" />
+							<input id="text_box" name="" type="text" value="1" class="choiceInput" readOnly="true"/>
+							<input id="add" name="" type="button" value="+" class="choiceBtn"/>
+						</p>
+					</div>
+					<input type="hidden" id="Seat_Time">
+					<input type="hidden" id="Seat_TimeId">
+					<input type="hidden" id="Seat_price" value='0'>
+					<input type="hidden" id="Seat_name">
+					<input type="hidden" id="Seat_num">
+					<div class="priceClearing">
+						结算：<b id="total">0元</b>
+					</div>
+				</div>
+				<div class="seatPicBox">
+					<div class="darktitle seatPic">
+						座位图
+					</div>
+					<div class="seatPic">
+						<img id="seatPic" src="../image/ms1.png"/>
+					</div>
+				</div>
+			</div>
+			<footer id="footer" class="border-t">
+				<div class="box_bottom" onclick="nowBuy()">
+					<a class="button" tapmode>选好了</a>
+				</div>
+			</footer>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery.min.js"></script>
+	<script type="text/javascript" src="../script/zepto.min.js"></script>
+	<script type="text/javascript" src="../script/funcTools.js" ></script>
+	<script type="text/javascript" src="../script/sessions.js" ></script>
+	<script type="text/javascript">
+		var t = $("#text_box");
+		apiready = function() {
+			fixIos7Bar($("header"));
+			api.setStatusBarStyle({
+				style : 'light'
+			});
+			getSeatInfo();
+		}
+		//获取剧目时间和价格
+		function getSeatInfo() {
+			var getSeatUrl = ajaxAgent.serverAction + '/app/index/SeatInfo';
+			api.showProgress();
+			api.ajax({
+				url : getSeatUrl,
+				method : 'get',
+				timeout : 50,
+				dataType : 'json',
+				returnAll : false,
+				data : {
+					values : {
+						Id : api.pageParam.reperId
+					}
+				}
+			}, function(ret, err) {
+				if (ret.hot_list) {
+					var timehtml = '';
+					var pricehtml = '';
+					var IsActive = true;
+					$.each(ret.hot_list, function(i, val) {
+						var seat_price = val.all;
+						$api.setStorage("seat_price" + i, seat_price);
+						if (i < 1) {
+							timehtml += '<div class="col active" id="time' + i + '" onclick="setTime(' + i + ',' + val.id + ',' + "\'" + val.time + "\'" + ',' + "\'" + val.showPic + "\'" + ')">' + val.time + '</div>';
+							$("#Seat_Time").val(val.time);
+							$("#Seat_TimeId").val(val.id);
+							$("#seatPic").attr('src', val.showPic);
+							$.each(seat_price, function(k, j) {
+								if (parseInt(j.seat_syps) == 0) {
+									pricehtml += '<div class="SeatPew disabled">' + j.seat_price + '元</div>';
+								} else if ((IsActive == true) && parseInt(j.seat_syps) != 0) {
+									pricehtml += '<div class="SeatPew active" onclick="setPrice(this,' + "\'" + j.seat_price + "\'" + ',' + "\'" + j.seat_name + "\'" + ')">' + j.seat_price + '元</div>';
+									$("#Seat_price").val(j.seat_price);
+									$("#Seat_name").val(j.seat_name);
+									$("#Seat_num").val(parseInt(j.seat_syps));
+									IsActive = false;
+								} else {
+									pricehtml += '<div class="SeatPew" onclick="setPrice(this,' + "\'" + j.seat_price + "\'" + ',' + "\'" + j.seat_name + "\'" + ')">' + j.seat_price + '元</div>';
+								}
+							});
+						} else {
+							timehtml += '<div class="col" id="time' + i + '" onclick="setTime(' + i + ',' + val.id + ',' + "\'" + val.time + "\'" + ',' + "\'" + val.showPic + "\'" + ')">' + val.time + '</div>';
+						}
+						$("#timelist").html(timehtml);
+						$("#pricelist").html(pricehtml);
+						var i = parseInt(ret.hot_list.length);
+						var swipeWidth = Math.ceil((50 * i));
+						var slideWidth = getNumber((84 / i));
+						var slideMargin = getNumber((6 / i));
+						$(".row").css('width', swipeWidth + '%');
+						$(".col").css('width', slideWidth + '%');
+						$(".col").css('margin', '10px ' + slideMargin + '%');
+						setTotal();
+					});
+				}
+			});
+			api.parseTapmode();
+			api.hideProgress();
+		}
+
+		//立即购买
+		function nowBuy() {
+			var num = parseInt($("#text_box").val());
+			var price = parseInt($("#Seat_price").val());
+			var Mount = (num * price);
+			if (0 == price || 0 == Mount) {
+				api.alert({
+					msg : '当前场次余票不足,请更换其他场次'
+				});
+				return false;
+			}
+			var seatArray = {
+				SeatStr : '',
+				Price : Mount,
+				Num : num
+			}
+			api.openWin({
+				name : 'commonHomeConfirmOrder',
+				url : 'win_commonHomeTitle.html',
+				pageParam : {
+					bannerName : 'confirmOrder',
+					bannerTitle : '确认购票',
+					bannerUrl : 'frm_confirmBuyReper.html',
+					Id : api.pageParam.reperId,
+					Name : api.pageParam.reperName,
+					Address : api.pageParam.reperAddress,
+					Rebate : api.pageParam.isSaleFlag,
+					seatArray : seatArray,
+					SeatTimeId : $("#Seat_TimeId").val(),
+					SeatTime : $("#Seat_Time").val(),
+					seatName : $("#Seat_name").val()
+				},
+				bounces : false,
+				vScrollBarEnabled : false,
+				hScrollBarEnabled : false,
+				delay : 100,
+				reload : true
+			});
+		}
+
+		//数量增加
+		$("#add").click(function() {
+			var MaxNum = $("#Seat_num").val();
+			var Num = parseInt(t.val());
+			if (Num > 5) {
+				api.alert({
+					msg : '一次性最多只能购买6张票！'
+				});
+				return false;
+			}
+			if (Num > MaxNum) {
+				api.alert({
+					msg : '余票不足！'
+				});
+				return false;
+			}
+			t.val(Num + 1);
+			if (Num != 1) {
+				$('#min').attr('disabled', false);
+			}
+			setTotal();
+		});
+		//数量减少
+		$("#min").click(function() {
+			if (parseInt(t.val()) < 2) {
+				$('#min').attr('disabled', true);
+				return false;
+			} else {
+				t.val(parseInt(t.val()) - 1);
+			}
+			setTotal();
+		});
+		//设置价格
+		function setPrice(obj, Price, Name) {
+			$(".SeatPew").removeClass("active");
+			$(obj).addClass("active");
+			$("#Seat_price").val(Price);
+			$("#Seat_name").val(Name);
+			setTotal();
+		}
+
+		//点击场次切换该场次价格
+		function setTime(i, Id, Time, Pic) {
+			var price_str = $api.getStorage("seat_price" + i);
+			var pricehtml = '';
+			var IsActive = true;
+			$("#seatPic").attr('src', Pic);
+			$.each(price_str, function(k, j) {
+				if (parseInt(j.seat_syps) == 0) {
+					pricehtml += '<div class="SeatPew disabled">' + j.seat_price + '元</div>';
+				} else if ((IsActive == true) && parseInt(j.seat_syps) != 0) {
+					pricehtml += '<div class="SeatPew active" onclick="setPrice(this,' + "\'" + j.seat_price + "\'" + ',' + "\'" + j.seat_name + "\'" + ')">' + j.seat_price + '元</div>';
+					$("#Seat_price").val(j.seat_price);
+					$("#Seat_name").val(j.seat_name);
+					$("#Seat_num").val(parseInt(j.seat_syps));
+					IsActive = false;
+				} else {
+					pricehtml += '<div class="SeatPew" onclick="setPrice(this,' + "\'" + j.seat_price + "\'" + ',' + "\'" + j.seat_name + "\'" + ')">' + j.seat_price + '元</div>';
+				}
+			});
+			$(".col").removeClass("active");
+			$("#time" + i).addClass("active");
+			$("#Seat_Time").val(Time);
+			$("#Seat_TimeId").val(Id);
+			$("#pricelist").html(pricehtml);
+			setTotal();
+		}
+
+		//计算价格
+		function setTotal() {
+			var num = parseInt($("#text_box").val());
+			var price = parseInt($("#Seat_price").val());
+			$("#total").text((price * num) + '元');
+		}
+	</script>
+</html>

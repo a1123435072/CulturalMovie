@@ -1,0 +1,211 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<title>最新演出</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/style.css" />
+		<style type="text/css">
+			.swipe {
+				overflow: hidden;
+				position: relative;
+			}
+			.swipe-wrap {
+				overflow: hidden;
+				position: relative;
+			}
+			.swipe-wrap > div {
+				float: left;
+				width: 100%;
+				position: relative;
+				background: #fff;
+			}
+			.swipe-wrap > div {
+				overflow: hidden;
+				position: relative;
+			}
+			.swipe-wrap img {
+				width: 100%;
+			}
+			#slide {
+				margin: 0 auto;
+				position: relative;
+			}
+			#pointer {
+				position: absolute;
+				bottom: 12px;
+				overflow: hidden;
+				width: 100%;
+				text-align: center;
+			}
+			#pointer a {
+				display: inline-block;
+				width: 6px;
+				height: 6px;
+				border-radius: 6px;
+				margin-right: 4px;
+				background-color: #e8e8e8;
+			}
+			#pointer a.active {
+				background-color: #e23b3b;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="wrapBox">
+			<!--幻灯片-->
+			<div id='slide' class='swipe'>
+				<ul></ul>
+			</div>
+			<div class="repertoireList">
+				<ul id="newRepeBox"></ul>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery.min.js"></script>
+	<script type="text/javascript" src="../script/swipe.js"></script>
+	<script type="text/javascript" src="../script/funcTools.js"></script>
+	<script type="text/javascript" src="../script/sessions.js"></script>
+	<script type="text/javascript">
+		var page = 1;
+		apiready = function() {
+			getSwipePic();
+			//头部下拉刷新
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : 'rgba(0,0,0,0)',
+				textColor : '#666',
+				textDown : '下拉刷新',
+				textUp : '释放刷新'
+			}, function(ret, err) {
+				getSwipePic();
+				api.refreshHeaderLoadDone();
+			});
+			//底部下拉加载更多
+			api.addEventListener({
+				name : 'scrolltobottom'
+			}, function(ret, err) {
+				page++;
+				getNewReper();
+			});
+		}
+		//服务器获取图片
+		function getSwipePic() {
+			var getSwipeUrl = ajaxAgent.serverAction + '/app/index/getSwipePic';
+			api.showProgress();
+			api.ajax({
+				url : getSwipeUrl,
+				method : 'get',
+				timeout : 50,
+				dataType : 'json',
+				returnAll : false,
+				data : {
+					values : {
+						picType : 5
+					}
+				}
+			}, function(ret, err) {
+				if (ret.bannerList) {
+					var swipHtml = '', poinHtml = '', slideHtml = '';
+					$.each(ret.bannerList, function(i, val) {
+						swipHtml += '<div onClick=""><img src="' + val.showPic + '" /></div>';
+						if (1 > i) {
+							poinHtml += '<a class="active"></a>';
+						} else {
+							poinHtml += '<a></a>';
+						}
+					});
+					slideHtml += '<div class="swipe-wrap" id="banner-content">';
+					slideHtml += swipHtml;
+					slideHtml += '</div>';
+					slideHtml += '<div id="pointer">';
+					slideHtml += poinHtml;
+					slideHtml += '</div>';
+					$("#slide").html(slideHtml);
+					//自动切换幻灯片
+					onLoadSwipe();
+					//加载最新列表
+					getNewReper();
+				}
+			});
+			api.hideProgress();
+		}
+
+		//获取最新剧目列表
+		function getNewReper() {
+			var userEntity = sessionAgent.getLoginInfo();
+			var userId = userEntity.userId;
+			var getNewReperUrl = ajaxAgent.serverAction + '/app/index/performList';
+			getNewReperUrl += '?currentPage=' + page + '&pageSize=10&rdnum=' + Math.random();
+			api.showProgress();
+			api.ajax({
+				url : getNewReperUrl,
+				method : 'get',
+				timeout : 50,
+				dataType : 'json',
+				returnAll : false,
+				data : {
+					values : {
+						artId : '0',
+						userId : userId
+					}
+				}
+			}, function(ret, err) {
+				if (ret.hot_list) {
+					if ((0 == ret.hot_list.length ) && (1 == page)) {
+						$("#newRepeBox").html('<p style="text-align: center;">暂无数据！</p>');
+						return false;
+					} else if ((0 == ret.hot_list.length ) && (1 != page)) {
+						api.toast({
+							msg : '没有更多地数据了',
+							duration : 1000,
+							location : 'middle'
+						});
+						return false;
+					} else {
+						var reperHtml = '';
+						$.each(ret.hot_list, function(i, val) {
+							var click = "showReper(" + val.id + "," + "\'" + val.showTitle + "\'" + "," + "\'" + val.showPic + "\'" + "," + val.isSeatFlag + "," + "\'" + val.isSaleFlag + "\'" + "," + "\'" + val.showAddress + "\'" + "," + val.isCollect + ")";
+							reperHtml += '<li onClick="' + click + '"><img class="repertoireListPic" src="' + val.showPic + '" /><div class="listWrap"><div class="repertoireTitle"><span class="theaterName">' + val.showTitle + '</span><span class="shopNameIcon">';
+							if (1 != val.isSaleFlag) {
+								reperHtml += '<img src="../image/sale.png">';
+							} else {
+								reperHtml += '';
+							}
+							reperHtml += '</span></div><div class="repertoireWidth100 repertoireTime"><img src="../image/clock.png"><span>' + val.showDate + '</span><p class="repertoireListMoney">￥' + val.minPrice + '起</p></div><div class="repertoireWidth100 theaterBox"><img src="../image/location.png">' + val.showAddress + '</div></div></li>';
+						});
+						if (page == 1) {
+							$("#newRepeBox").html(reperHtml);
+						} else {
+							$("#newRepeBox").append(reperHtml);
+						}
+					}
+				}
+			});
+			api.parseTapmode();
+			api.hideProgress();
+		}
+
+		//幻灯片自动切换
+		function onLoadSwipe() {
+			var $pointer = $api.byId('pointer');
+			window.mySlide = Swipe(slide, {
+				continuous : true,
+				auto : 3000,
+				disableScroll : true,
+				stopPropagation : true,
+				callback : function(index, element) {
+					console.log();
+					var $actA = $api.dom($pointer, 'a.active');
+					$api.removeCls($actA, 'active');
+					$api.addCls($api.eq($pointer, index + 1), 'active');
+				},
+				transitionEnd : function(index, element) {
+				}
+			});
+		}
+	</script>
+</html>

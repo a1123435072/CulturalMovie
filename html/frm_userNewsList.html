@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+		<title>我的资讯</title>
+		<link rel="stylesheet" type="text/css" href="../css/api.css" />
+		<link rel="stylesheet" type="text/css" href="../css/aui.css" />
+		<link rel="stylesheet" type="text/css" href="../css/adminStyle.css" />
+		<style>
+			body {
+			}
+		</style>
+	</head>
+	<body>
+		<div id="wrap" class="flex-wrap flex-vertical">
+			<div id="main" class="flex-con main_bg">
+				<div class="orderList" id="list">
+					<!--	<a href="" class="item Fix hightitem bg_fff marB10" tapmode onclick="">
+					<div class="cnt">
+					<img class="pic" src="../image/upload/order_pic01.png" >
+					<div class="wrap">
+					<div class="wrap2">
+					<div class="content">
+					<div class="collection">
+					<h2>京剧《西厢记》9折京剧9折京剧9折京剧9折京剧</h2>
+					</div>
+					<span class="date"><i><img src="../image/date.png" width="90" height="90"></i>2016-04-05</span>
+					<span class="evaluate"><i><img src="../image/evaluate.png" width="83" height="72"></i>509106</span>
+					</div>
+					</div>
+					</div>
+					</div>
+					</a>
+					-->
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="../script/api.js"></script>
+	<script type="text/javascript" src="../script/jquery.min.js"></script>
+	<script type="text/javascript" src="../script/funcTools.js"></script>
+	<script type="text/javascript" src="../script/sessions.js"></script>
+	<script type="text/javascript">
+		var page = 1;
+		var pageSize = 10;
+		//每一页加载数量
+		var hot_listtotal = 0;
+		apiready = function() {
+			//alert(api.pageParam.orderState);
+			getPerform();
+			setRefreshHeader();
+			api.addEventListener({
+				name : 'scrolltobottom'
+			}, function(ret, err) {
+				var sumNum = page * pageSize;
+				if (sumNum >= hot_listtotal) {
+					var msg = '暂无数据...';
+					if (hot_listtotal == 0)
+						msg = '暂无数据...';
+					else
+						msg = '已经到底了...';
+					api.toast({
+						msg : msg,
+						duration : 3000,
+						location : "middle"
+					});
+				} else {
+					page++;
+					getPerform();
+					api.parseTapmode();
+				}
+			});
+		}
+		//根据条件查询
+		function getPerform() {
+			//alert(page);
+			var userEntity = sessionAgent.getLoginInfo();
+			var userId = userEntity.userId;
+			var getPerformUrl = '';
+			var dataType = api.pageParam.dataType;
+			var barType = api.pageParam.barType;
+			if (barType == 1)
+				getPerformUrl = ajaxAgent.serverAction + '/app/index/getMyAppScList';
+			//我的收藏
+			else if (barType == 2)
+				getPerformUrl = ajaxAgent.serverAction + '/app/index/getMyAppXxJm';
+			//我的评论
+			api.showProgress();
+			api.ajax({
+				url : getPerformUrl,
+				method : 'post',
+				timeout : 50,
+				dataType : 'json',
+				returnAll : false,
+				data : {
+					values : {
+						userId : userId,
+						dataType : 2,
+						currentPage : page,
+						pageSize : pageSize
+					}
+				}
+			}, function(ret, err) {
+				if (ret) {
+					//alert(JSON.stringify(ret));
+					if (ret.result == 1) {
+						//统计总量
+						if (ret.hot_listtotal)
+							hot_listtotal = ret.hot_listtotal;
+						else
+							hot_listtotal = 0;
+						if (ret.hot_list) {
+							if ((ret.hot_list.length == 0) && (page == 1)) {
+								$("#list").html('<p style="text-align: center;">暂无数据！</p>');
+								return false;
+							} else {
+								var html = '';
+								$.each(ret.hot_list, function(i, val) {
+									html += '      	 	<a   class="item Fix hightitem bg_fff marB10" tapmode onclick="showNew(' + val.id + ',' + val.showCount + ',' + val.isCollect + ')">	';
+									html += '                <div class="cnt" >	';
+									html += '                    <img class="pic" src="' + val.showPic + '" >';
+									html += '					<div class="wrap">	';
+									html += '           				<div class="wrap2">	';
+									html += '                            <div class="content">	';
+									html += '                                <div class="collection">';
+									html += '                                	<h2>' + val.showTitle + '</h2>';
+									html += '                                </div>	';
+									html += '                                <span class="date"><i><img src="../image/date.png" width="90" height="90"></i>' + val.showDate + '</span>';
+									html += '                                <span class="evaluate"><i><img src="../image/evaluate.png" width="83" height="72"></i>' + val.showCount + '</span>';
+									html += '                            </div>	';
+									html += '                        </div>           	';
+									html += '                    </div>	';
+									html += '                </div>	';
+									html += '            </a>';
+								});
+								if (page == 1) {
+									$("#list").html(html);
+								} else {
+									$("#list").append(html);
+								}
+							}
+						} else {
+							api.toast({
+								msg : "没有数据了...",
+								duration : 5000,
+								location : "middle"
+							});
+						}
+					}//if result==1
+					else {//操作失败
+						api.toast({
+							msg : ret.msg,
+							duration : 5000,
+							location : "middle"
+						});
+					}
+				} else {
+					api.toast({
+						msg : '连接失败！',
+						duration : 2000,
+						location : "middle"
+					});
+				}
+			});
+			api.parseTapmode();
+			api.hideProgress();
+		}
+
+		//头部下拉刷新
+		function setRefreshHeader() {
+			api.setRefreshHeaderInfo({
+				visible : true,
+				bgColor : '#ccc',
+				textColor : '#fff',
+				textDown : '下拉刷新...',
+				textUp : '松开刷新...',
+				showTime : true
+			}, function(ret, err) {
+				getPerform();
+				api.refreshHeaderLoadDone();
+			});
+		}
+	</script>
+</html>
